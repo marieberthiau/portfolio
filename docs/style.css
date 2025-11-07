@@ -1,0 +1,155 @@
+/* ---------- Couleurs thème clair ---------- */
+:root {
+  --col-1: #6b007b;
+  --col-2: #12239e;
+  --col-3: #118dff;
+  --col-4: #5ab4ac;
+  --col-5: #e66c37;
+  --col-6: #d8b365;
+
+  --text-color: #000000;
+  --bg-color: #ffffff;
+  --figcaption-color: #6b007b;
+}
+
+/* ---------- Couleurs thème dark ---------- */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --col-1: #e645ab;
+    --col-2: #d8b365;
+    --col-3: #fffbf0;
+    --col-4: #5ab4ac;
+    --col-5: #e66c37;
+    --col-6: #dfd5d5;
+
+    --text-color: #ffffff;
+    --bg-color: #000000;
+    --figcaption-color: #d8b365;
+  }
+}
+
+/* ------Forcer le thème clair à l'impression PDF----- */
+@media print {
+  :root {
+    --col-1: #6b007b !important;
+    --col-2: #12239e !important;
+    --col-3: #118dff !important;
+    --col-4: #5ab4ac !important;
+    --col-5: #e66c37 !important;
+    --col-6: #d8b365 !important;
+    --text-color: #000000 !important;
+    --bg-color: #ffffff !important;
+    --figcaption-color: #6b007b;
+  }
+
+  .page-break {
+    page-break-before: always;  /* Saut de page dans le PDF */
+    border: none;               /* Le trait disparaît dans le PDF */
+  }
+}
+
+/* Affichage écran */
+.page-break {
+  border: 0;
+  border-top: 1px solid #ccc;   /* le trait visible à l'écran */
+  margin: 2em 0;
+}
+
+/* ---------- Style global ---------- */
+body {
+  color: var(--text-color);
+  background: var(--bg-color);
+  line-height: 1.4;
+  font-size: 1rem;
+}
+
+/* ---------- Titres avec indentation progressive ---------- */
+h1, h2, h3, h4 {
+  color: var(--col-3);
+  margin-top: 1.4em;
+  margin-bottom: 0.6em;
+  font-weight: 600;
+}
+
+/* -----éviter les titres orphelins------ */
+
+h1 {
+  text-align: center;
+  margin-left: 0;
+  font-size: 2em;
+}
+
+h2 {
+  text-align: center;
+  text-transform: uppercase;
+  text-decoration: underline;
+  letter-spacing: 0.8px;
+  margin-left: 0.5rem;
+  font-size: 1.5em;
+  page-break-after: avoid;
+}
+
+h3 {
+  margin-left: 1.5rem;
+  font-size: 1.3em;
+  color: var(--col-1);
+  page-break-after: avoid;
+}
+
+h4 {
+  margin-left: 2.5rem;
+  font-size: 1.2em;
+  color: var(--col-2);
+}
+
+h5 {
+  margin-left: 2.8rem;
+  font-size: 1.1em;
+  color: var(--col-4);
+}
+
+h6 {
+  margin-left: 3.0rem;
+  font-size: 1.1em;
+  color: var(--col-2);
+}
+
+/* Optionnel : adoucir les paragraphes */
+p {
+  margin-top: 0.4em;
+  margin-bottom: 0.6em;
+}
+
+/* ---------- Figures et Figcaption (pas de coupure) ---------- */
+figure {
+  page-break-inside: avoid;
+  break-inside: avoid;
+  display: block;
+  margin: 1em 0;
+}
+
+/* ---------- Figcaption dynamique ---------- */
+figcaption {
+  color: var(--figcaption-color);
+  font-style: italic;
+  margin-top: 0.4em;
+  font-size: 0.7em;
+  page-break-before: avoid;
+  break-before: avoid;
+}
+
+/* ---------- figure non découpée ---------- */
+figure img {
+  page-break-after: avoid;
+  break-after: avoid;
+  display: block;
+}
+
+/* Style des références bibliographiques en exposant */
+a.ref {
+  font-size: 0.7em;
+  vertical-align: super;
+  text-decoration: none;   /* évite le soulignement */
+  color: inherit;          /* garde la couleur du texte */
+}
+
