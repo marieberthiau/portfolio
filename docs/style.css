@@ -61,7 +61,10 @@ body {
   background: var(--bg-color);
   line-height: 1.4;
   font-size: 1rem;
+  text-align: justify;
+  text-justify: inter-word;
 }
+
 
 /* ---------- Titres avec indentation progressive ---------- */
 h1, h2, h3, h4 {
@@ -80,7 +83,7 @@ h1 {
 }
 
 h2 {
-  text-align: center;
+  text-align: left;
   text-transform: uppercase;
   text-decoration: underline;
   letter-spacing: 0.8px;
@@ -151,5 +154,37 @@ a.ref {
   vertical-align: super;
   text-decoration: none;   /* évite le soulignement */
   color: inherit;          /* garde la couleur du texte */
+}
+
+/* ---------- Bloc 2 colonnes compatible PDF ---------- */
+.two-columns {
+  column-count: 2;           /* 2 colonnes */
+  column-gap: 20px;          /* distance entre les colonnes */
+  margin: 20px 0;
+  font-size: 0.66rem;        /* taille réduite */
+  line-height: 1.35;
+  text-align: justify;
+}
+
+/* Empêche un paragraphe ou une image de se couper */
+.two-columns > * {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  margin-bottom: 0.8rem;
+}
+
+/* Les images se redimensionnent correctement */
+.two-columns img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* ---------- Version responsive écran seulement ---------- */
+@media screen and (max-width: 900px) {
+  .two-columns {
+    column-count: 1;         /* repasse à 1 colonne */
+    font-size: 0.85rem;      /* lisibilité mobile */
+  }
 }
 
