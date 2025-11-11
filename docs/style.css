@@ -156,6 +156,37 @@ a.ref {
   color: inherit;          /* garde la couleur du texte */
 }
 
+/* ---------- Création d'un tableau compact ---------- */
+
+.table-compact {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 0.66rem; /* 2/3 de la police body */
+  line-height: 1.3;
+  text-align: left;
+}
+
+/* En-tête répété + fond gris */
+.table-compact thead {
+  display: table-header-group;
+  font-weight: bold;
+  background: #f2f2f2; /* gris clair */
+  border-bottom: 2px solid #000;
+}
+
+.table-compact tbody tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.table-compact td,
+.table-compact th {
+  padding: 4px 6px;
+  vertical-align: top;
+  border-bottom: 1px solid #ccc;
+}
+
 /* ---------- Bloc 2 colonnes compatible PDF ---------- */
 .two-columns {
   column-count: 2;           /* 2 colonnes */

@@ -31,24 +31,25 @@ pdf_options:
   - [I.D. Découverte du jeu de données ](#id-découverte-du-jeu-de-données-)
     - [I.D.1 Biais et difficultés potentielles *a priori* ](#id1-biais-et-difficultés-potentielles-a-priori-)
     - [I.D.2 Exploration du jeu sur l'OpenData de la ville de Paris. ](#id2-exploration-du-jeu-sur-lopendata-de-la-ville-de-paris-)
-  - [I.D.3. Exploration du jeu avec Python ](#id3-exploration-du-jeu-avec-python-)
-    - [I.D.3.1. Exploration des jeux de données 'comptage \& compteurs'](#id31-exploration-des-jeux-de-données-comptage--compteurs)
-    - [I.D.3.2. Exploration du jeu de données 'baromètreFUB'](#id32-exploration-du-jeu-de-données-baromètrefub)
-    - [I.D.3.3. Exploration du jeu de données 'météo'](#id33-exploration-du-jeu-de-données-météo)
-- [I.E. Exploration des jeux d'enrichissement ](#ie-exploration-des-jeux-denrichissement-)
-  - [I.E.1. Jeu de données météorologique ](#ie1-jeu-de-données-météorologique-)
-  - [I.E.2. Jeu de données de l'enquête de la FUB ](#ie2-jeu-de-données-de-lenquête-de-la-fub-)
-- [II. Pré-processing mis en place et création du rapport ](#ii-pré-processing-mis-en-place-et-création-du-rapport-)
-  - [II.A. Préprocessing dans Python ](#iia-préprocessing-dans-python-)
-    - [II.A.1. Scission du jeu de données principal et élimination des données inutiles ](#iia1-scission-du-jeu-de-données-principal-et-élimination-des-données-inutiles-)
-    - [II.A.1.a. Préparation du jeu principal](#iia1a-préparation-du-jeu-principal)
-    - [II.A.1.b. Scission du jeu principal en 2 jeux](#iia1b-scission-du-jeu-principal-en-2-jeux)
-    - [II.A.2. Préparation des avis pour l'analyse textuelle ](#iia2-préparation-des-avis-pour-lanalyse-textuelle-)
-    - [II.A.2.1. Regroupemeent des données ](#iia21-regroupemeent-des-données-)
-    - [II.A.2.2. Normalisation et lemmatisation du texte en français ](#iia22-normalisation-et-lemmatisation-du-texte-en-français-)
-    - [II.A.2.3. Choix de l'algorithme le plus pertinent ](#iia23-choix-de-lalgorithme-le-plus-pertinent-)
-    - [II.A.3. Jointure géospatiale des avis ](#iia3-jointure-géospatiale-des-avis-)
-    - [II.A.4. Fichiers obtenus à l'issu de cette étape ](#iia4-fichiers-obtenus-à-lissu-de-cette-étape-)
+  - [I.E. Bilan de l'étape de découverte des données](#ie-bilan-de-létape-de-découverte-des-données)
+- [II.A. Préprocessing du jeu principal avec Python ](#iia-préprocessing-du-jeu-principal-avec-python-)
+  - [II.A.1. Exploration détaillée des jeux de données 'comptage \& compteurs' ](#iia1-exploration-détaillée-des-jeux-de-données-comptage--compteurs-)
+  - [II.A.2. Préparation du jeu principal ](#iia2-préparation-du-jeu-principal-)
+    - [II.A.2.a. Préparation du jeu principal](#iia2a-préparation-du-jeu-principal)
+    - [II.A.2.c. Extraction du jeu de comptage](#iia2c-extraction-du-jeu-de-comptage)
+    - [II.A.2.b. Extraction du jeu de compteur](#iia2b-extraction-du-jeu-de-compteur)
+  - [II.A.3. Géolocalisation des compteurs](#iia3-géolocalisation-des-compteurs)
+- [II.B. Exploration et Préprocessing des jeux d'enrichissement avec Python  ](#iib-exploration-et-préprocessing-des-jeux-denrichissement-avec-python--)
+    - [II.B.1 Jeu de données météorologique ](#iib1-jeu-de-données-météorologique-)
+    - [II.B.2. Jeu de données de l'enquête de la FUB ](#iib2-jeu-de-données-de-lenquête-de-la-fub-)
+      - [II.B.2.a. Exploration des clusters du baromètre FUB ](#iib2a-exploration-des-clusters-du-baromètre-fub-)
+      - [II.B.2.b. Bilan de l'exploration du baromètre FUB et préparation des points ](#iib2b-bilan-de-lexploration-du-baromètre-fub-et-préparation-des-points-)
+    - [II.B.3. Préparation des avis pour l'analyse textuelle ](#iib3-préparation-des-avis-pour-lanalyse-textuelle-)
+      - [II.B.3.a. Regroupemeent des données ](#iib3a-regroupemeent-des-données-)
+      - [II.B.3.b. Normalisation et lemmatisation du texte en français ](#iib3b-normalisation-et-lemmatisation-du-texte-en-français-)
+      - [II.B.3.c. Choix de l'algorithme le plus pertinent ](#iib3c-choix-de-lalgorithme-le-plus-pertinent-)
+    - [II.B.4. Jointure géospatiale des avis ](#iib4-jointure-géospatiale-des-avis-)
+    - [II.B.5. Fichiers obtenus à l'issu de cette étape ](#iib5-fichiers-obtenus-à-lissu-de-cette-étape-)
   - [II.B. Préprocessing dans Power Query ](#iib-préprocessing-dans-power-query-)
     - [II.B.1. Collecte des données ](#iib1-collecte-des-données-)
     - [II.B.2. Suppression des champs inutiles et convivialité des champs ](#iib2-suppression-des-champs-inutiles-et-convivialité-des-champs-)
@@ -64,7 +65,7 @@ pdf_options:
 - [III. Analyse des données ](#iii-analyse-des-données-)
 - [Conclusion](#conclusion)
   - [Bilan](#bilan)
-  - [Perspectives : ce que nous aurions pu faire si nous en avions eu le temps.](#perspectives--ce-que-nous-aurions-pu-faire-si-nous-en-avions-eu-le-temps)
+  - [Perspectives :](#perspectives-)
   - [Les difficultés qu'il a fallu relever](#les-difficultés-quil-a-fallu-relever)
 - [Bibliographie](#bibliographie)
   - [1. Plans vélo et qualité de l'air](#1-plans-vélo-et-qualité-de-lair)
@@ -300,146 +301,253 @@ Pour expliquer les variations qui seraient liés à la **qualité** de l'aménag
 
 Cette première analyse nous conduit donc à la décision d'enrichir notre jeu de données avec 2 jeux de données complémentaires issus des sources suivantes :
 
-* le jeu de donnée des [résultats du Baromètre vélo 2025](https://opendata.parlons-velo.fr/) de la Fédération des Usagers de la Bicyclette (FUB), paru ce 1er octobre 2025 et qui recense les résultats de la dernière enquête d'usage (réalisé au printemps 2025), avec notamment les identifications, par les usagers de zones d'aménagements à améliorer ("points rouges") et de zones sur lesquels les aménagements ont été améliorés depuis 2021 (date de l'enquête précédente, "points verts") ainsi que de points sur lesquels il existe des attentes en matière d'équipement (notamment stationnement ("points bleus")).
-Chacun de ces points ayant été éventuellement regroupés en "clusters" lorsque 14 points sont identifiés par les répondants dans une zone de 50m sur une même rue, un même carrefour, une zone a été tracée. Les données textuelles (commentaire individuels des sondés) associés à chaque point géographique pourront éventuellement être utilisé pour affiner l'analyse.
-Ces jeux permettront d'enrichier la table des sites de comptage afin de croiser les analyses avec une cartographie précise.
+* le jeu de donnée des [résultats du Baromètre vélo 2025](https://opendata.parlons-velo.fr/) de la Fédération des Usagers de la Bicyclette (FUB), paru ce 1er octobre 2025 et qui recense les résultats de la dernière enquête d'usage (réalisé au printemps 2025), avec notamment les identifications, par les usagers de zones d'aménagements à améliorer ("points rouges") et de zones sur lesquels les aménagements ont été améliorés depuis 2021 (date de l'enquête précédente, "points verts") ainsi que de points sur lesquels il existe des attentes en matière d'équipement (notamment stationnement ("points bleus")).<br>
+Chacun de ces points ayant été éventuellement regroupés en "clusters" lorsque 14 points sont identifiés par les répondants dans une zone de 50m sur une même rue, un même carrefour, une zone a été tracée. Les données textuelles (commentaire individuels des sondés) associés à chaque point géographique pourront éventuellement être utilisé pour affiner l'analyse.<br>
+Ces jeux permettront d'enrichier la table des sites de comptage afin de croiser les analyses avec une cartographie précise.<br><br>
 
 * les données météo quotidiennes (on a vu lors du rapport de découverte que certaines semaines semblent plus faibles que d'autres en période hivernale) : on pourra utiliser le [jeu de donnée météo des 6 capteurs météo de la capitale](https://www.data.gouv.fr/api/1/datasets/r/aba837dc-fc7c-4010-ab5e-0eb02feb0010) pour référence.
 
 <hr class="page-break">
 
-### I.D.3. Exploration du jeu avec Python <a id="ID3"></a>
+### I.E. Bilan de l'étape de découverte des données
 
-Nous viserons donc une double visualisation graphique : 
+À l'issue de cette étape, nous décidons de centrer notre analyse sur une visualisation graphique : 
 * **temporelle** centrée sur l'heure de la journée, le jour de la semaine ainsi que la météo
-* **géographique** avec une cartographie des zones les plus fréquentées, à croiser avec le ressenti des cyclistes en matière de qualité d'aménagement (nuage de mot)
+* **géographique** avec une cartographie des zones les plus fréquentées, à croiser avec le ressenti des cyclistes en matière de qualité d'aménagement (nuage de mot).<br><br>
 
-Nous compléterons d'une analyse de l'effet de la météo et ses différentes composantes (température, pluviométrie, vent) et de son effet sur le flux de cycliste. Nous essaierons de mesurer son effet sur les zones de comptage : les cyclistes évitent-ils certains secteurs les jours de pluie (effet de qualité du revêtement (pavé...)) ou au contraire en période de forte chaleur (revêtement à fort albedo, abssence d'ombre ?)
+Nous compléterons d'une analyse de l'effet de la météo et ses différentes composantes (température, pluviométrie, vent) et de son effet sur le flux de cycliste.<br>
+Nous essaierons de mesurer son effet sur les zones de comptage : les cyclistes évitent-ils certains secteurs les jours de pluie (effet de qualité du revêtement (pavé...)) ou au contraire en période de forte chaleur (revêtement à fort albedo, absence d'ombre ?)<br><br>
 
-#### I.D.3.1. Exploration des jeux de données 'comptage & compteurs'
+## II.A. Préprocessing du jeu principal avec Python <a id="IIA"></a>
 
-Pour explorer le jeu de données, il faut d'abord y accéder... Pandas montre ici ses limites sur un jeu de données de 1,44 Go : en fonction de la configuration de nos ordinateurs, nous ne sommes que 2 sur 3 à pouvoir charger un dataframe avec la méthode `pandas.read_csv()`.
-Nous aurions pu basculer sur une autre librairie mais nous avons simplement opté pour un chargement "par morceaux" du jeu de données via une boucle de découpe par lot de 200 000 lignes puis un regroupement des données.
+### II.A.1. Exploration détaillée des jeux de données 'comptage & compteurs' <a id="IIA1"></a>
 
-Une fois le dataframe instancié, nous avons étudié ses différentes colonnes en créant une fonction d'analyse de ces dernières et en écrivant le résultat de cette analyse dans un fichier de métadonnées. La fonction est présentée en <a href="#ann2">Annexe 2</a> et son résultat sur le jeu de donnée principal en <a href="#ann2a">Annexe 2a</a>.
+Pour explorer le jeu de données, il faut d'abord y accéder... Pandas montre ici ses limites sur un jeu de données de 1,44 Go : en fonction de la configuration de nos ordinateurs, nous ne sommes que 2 sur 3 à pouvoir charger un dataframe avec la méthode `pandas.read_csv()`.<br>
+Nous aurions pu basculer sur une autre librairie mais nous avons simplement opté pour un chargement "par morceaux" du jeu de données via une boucle de découpe par lot de 200 000 lignes puis un regroupement des données.<br><br>
 
-Il est utile de remaquer à ce stade le fait que la dénomination des colonnes, quoique parfois un peu longue, est explicite, avec des identifiants clairement identifiables ce qui simplifie l'utilisation du jeu. 
+Une fois le dataframe créé, nous avons étudié ses différentes colonnes en créant une fonction d'analyse de ces dernières et en écrivant le résultat de cette analyse dans un fichier de métadonnées. La fonction est présentée en <a href="#ann2">Annexe 2</a> et son résultat sur le jeu de donnée principal en <a href="#ann2a">Annexe 2a</a>.<br><br>
 
-Ces informations nous permettent de voir que les données brutes issues des capteurs sont relativement complètes, mais pas immédiatement exploitables.  
-Certaines colonnes contiennent plusieurs informations (comme la date et l’heure combinées ou les coordonnées géographiques sous forme de texte), tandis que d’autres sont purement illustratives (notamment la partie photo que nous avions déjà décidé d'écarter). 
+Il est utile de remaquer à ce stade le fait que la dénomination des colonnes, quoique parfois un peu longue, est explicite, avec des identifiants clairement identifiables ce qui simplifie l'utilisation du jeu.<br><br>
+
+Ces informations nous permettent de voir que les données brutes issues des capteurs sont relativement complètes, mais pas immédiatement exploitables.  <br>
+Certaines colonnes contiennent plusieurs informations (comme la date et l’heure combinées ou les coordonnées géographiques sous forme de texte), tandis que d’autres sont purement illustratives (notamment la partie photo que nous avions déjà décidé d'écarter).<br><br>
 
 Un travail de pré-traitement est donc nécessaire pour rendre les variables :
 - plus **claires**,
 - plus **structurées**,
-- et plus **pertinentes** pour l’analyse métier.
+- et plus **pertinentes** pour l’analyse métier.<br><br>
 
 La présence de quelques données manquantes (moins de 4% des lignes étant concernée) nécessitait une analyse complémentaire pour savoir ce que nous allions faire, nous avons donc réalisé une visualisation de ces données manquantes afin de mieux cerner leur origine:
 
 <div style="text-align:center; margin: 20px 0;">
-  
   <figure style="display:inline-block; width:100%; margin:0 1%;">
     <img src="images/heatmap_manquants.png" alt="données manquantes dans le jeu principal" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 7 — Visualisation des données manquantes par lignes et colonnes dans le jeu de donnée principal
     </figcaption>
   </figure>
-
 </div>
 
 On constate que les données manquantes sont concentrées sur certaines lignes mais concernent la majorité des colonnes d'informations.
 2 types de profils de manquants apparaissent :
 
 1. Lorsque l'identifiant du compteur est absent, il manque toutes les données d'informations du compteur et les comptages correspondants (qui par ailleurs sont vides) ne seront pas exploitables : nous pourrons donc supprimer ces lignes.
-2. Lorsque l'identifiant du compteur est présent MAIS que l'ID Photos est absent, alors on a malgré tout les informations principales de disponibles, et notamment celles de comptage et de géolocalistion des compteurs => il sera donc possible de conserver ces lignes de comptages.
+2. Lorsque l'identifiant du compteur est présent MAIS que l'ID Photos est absent, alors on a malgré tout les informations principales de disponibles, et notamment celles de comptage et de géolocalistion des compteurs => il sera donc possible de conserver ces lignes de comptages.<br>
 
-Compte-tenu de ces constatations, il est conclu qu'il sera judicieux de nettoyer les données APRES avoir séparé les données en 2 jeux distincts (comptage et compteurs) et supprimer les colonnes inutiles de photos.
+Compte-tenu de ces constatations, il est conclu qu'il sera judicieux de nettoyer les données APRES avoir séparé les données en 2 jeux distincts (comptage et compteurs) et supprimer les colonnes inutiles de photos.<br><br>
 
-Il faut note que le jeu ne présente aucune ligne en doublon.
-La structure du jeu, issue d'une jointure entre les données de comptage fournies par Eco-Compteur et les données d'identification et localisation des compteurs, conduit par contre à une multiplication d'information liées à ces compteurs : on s'attend à avoir les informations relatives à chaque compteurs pour les 24h de chacune des 395 jours de comptage soit 9480 lignes potentielles lorsque le compteur n'a pas subi d'interruption.
+Il faut note que le jeu ne présente aucune ligne en doublon.<br>
+La structure du jeu, issue d'une jointure entre les données de comptage fournies par Eco-Compteur et les données d'identification et localisation des compteurs, conduit par contre à une multiplication d'information liées à ces compteurs : on s'attend à avoir les informations relatives à chaque compteurs pour les 24h de chacune des 395 jours de comptage soit 9480 lignes potentielles lorsque le compteur n'a pas subi d'interruption.<br><br>
 
-Cela alourdit le dataframe et justifie d'autant plus la scission avec un jeu "données de faits" pour les données de comptage et "données dimensionnelles" pour les données des compteurs.
+Cela alourdit le dataframe et justifie d'autant plus la scission avec un jeu "données de faits" pour les données de comptage et "données dimensionnelles" pour les données des compteurs.<br>
+Nous en profiterons pour scinder la colonne de coordonnées géographique afin de récupérer la latitude et la longitude, format plus pratique pour le visualisation dans Power BI et basculerons les données temporelles au format datetime.<br>
 
-#### I.D.3.2. Exploration du jeu de données 'baromètreFUB'
+### II.A.2. Préparation du jeu principal <a id="IIA2"></a>
 
-#### I.D.3.3. Exploration du jeu de données 'météo'
+#### II.A.2.a. Préparation du jeu principal
 
-
-
-## I.E. Exploration des jeux d'enrichissement <a id="IE"></a>
-
-### I.E.1. Jeu de données météorologique <a id="IE1"></a>
-
-### I.E.2. Jeu de données de l'enquête de la FUB <a id="IE2"></a>
-
-## II. Pré-processing mis en place et création du rapport <a id="II"></a>
-
-### II.A. Préprocessing dans Python <a id="IIA"></a>
-
-#### II.A.1. Scission du jeu de données principal et élimination des données inutiles <a id="IIA1"></a>
-
-#### II.A.1.a. Préparation du jeu principal
+Cette préparation s'est déroulée en plusieurs étapes, principalement dans le Jupyter Notebook nommé `rapport_d_exploration.ipynb`.
 
 1. **Séparation des colonnes composites, conversion des types de données et extraction des coordonnées géographiques**  
 
-Convertir les dates en format `datetime`, les coordonnées en `float`, et s’assurer que les nombres de comptages sont bien de type `int`.
+* Conversion des dates en format `datetime`, des coordonnées en `float`, et que les nombres de comptages sont bien de type `int`.
 
-Découper `Date et heure de comptage` en deux colonnes pour faciliter les regroupements temporels:
-  - `date` (pour l’analyse par jour, mois, saison) 
-  - et `heure` (pour les pics horaires)
-On conservera néanmoins la colonne au format 'datetime' initial car elle pourra être utile dans l'utilisation ultérieure sur PowerBi.
+* Conversion du champ `Date et heure de comptage` du format 'object' en format `datetime` en prenant en compte le fuseau horaire parisien et création des champs de `Date` et `Heure`pour faciliter les regroupements temporels :
+  - `Date` (pour l’analyse par jour, mois, saison)
+  - et `Heure` (pour les pics horaires)
+Après tergiversations, nous avons finalement choisi de conserver néanmoins la colonne au format 'datetime' initial car elle sera utile dans l'utilisation ultérieure sur PowerBi (création de hiérarchie temporelle jusqu'à l'heure).
 
-On choisit de transformer `Coordonnées géographiques` du jeu de données des compteurs en deux variables numériques distinctes utiles pour les analyses cartographiques :
-  - `latitude`
-  - et `longitude`.
+* Transformation de la colonne `Coordonnées géographiques` du jeu de données des compteurs en deux variables numériques distinctes `latitude` et `longitude` format plus pratique pour les visualisations cartographiques dans Power BI.
 
-Sur les jeux de données 'baromètreFUB', issus de fichier .geojson, on conservera dans un premier temps le format spécifique des polygones des clusters (avec une liste des points définissant la zone), comme par exemple :
-`MULTIPOLYGON (((2.285062579 48.880798105, 2.284173146 48.880794376, 2.283934653 48.881017294, 2.284509497 48.881230919, 2.285062579 48.880798105)))`.
+2. **Simplification de certains noms de colonnes** pour faciliter les manipulations car certains noms étaient très longs.
 
-Nous étudions en parallèle la meilleure option de traitement dans PowerBi pour ces zones.
+<table class="table-compact">
+  <thead>
+    <tr><th>Nom de colonne initial</th><th>Nouveau nom</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>`Comptage horaire`</td><td>`comptage_horaire`</td></tr>
+    <tr><td>`Date et heure de comptage`</td><td>`date_heure`</td></tr>
+    <tr><td>`Identifiant du compteur`</td><td> id_compteur`</td></tr>
+    <tr><td>`Nom du compteur`</td><td>`nom_compteur`</td></tr>
+    <tr><td>`Identifiant du site de comptage`</td><td> `id_site`</td></tr>
+    <tr><td>`Nom du site de comptage`</td><td>`nom_site`</td></tr>
+    <tr><td>`Identifiant technique compteur`</td><td>`id_technique_compteur`</td></tr>
+    <tr><td>`Date d\'installation du site de comptage`</td><td>`date_installation`</td></tr>
+    <tr><td>`Lien vers photo du site de comptage`</td><td>`photo_site`</td></tr>
+    <tr><td>`Coordonnées géographiques`</td><td>`coordonnees`</td></tr>
+  </tbody>
+</table>
 
-2. **Séparation des jeux de données et comptage et de compteurs, suppression des colonnes non analytiques**
+3. **Correction du format de l'identifiant du site de comptage :** sur certaines lignes, le site de comptage présentait une altération du format avec présence de virgule. Nous avons donc supprimé ces dernières et converti en entier pour avoir un format cohérent avec la nature d'identifiant de la colonne.
 
-Qui ont été artificiellement assemblés sur l'Open Data de la Ville de Paris mais ce qui pénalise fortement les performances car le jeu est trop encombrant.
+#### II.A.2.c. Extraction du jeu de comptage
 
-Éliminer les variables purement descriptives ou redondantes (`photo_site`, `id_photo_1`, `url_sites`, `type_dimage`, etc. sur les jeux de compteurs, `QRR`, `QTN` et autre niveau de qualité des données météo).
+Sur le jeu de donnée de comptage, on va venir conserver les colonnes suivantes:
+   * `id_compteur`
+   * `id_site`
+   * `comptage_horaire`
+   * `date_heure`
+   * `mois_annne_comptage`
+   * `date`
+   * `heure`
 
-3. **Simplification des noms de colonnes**  
-Renommer les colonnes en noms courts et explicites (francisés) pour faciliter le traitement.
-Que ce soit sur les jeux de comptage et de compteurs  (`id_compteur`, `comptage_horaire`, `date_installation`, etc.) ou sur le jeu de données météo, chargé en abbréviation anglosaxonne (`RR`='Rainfall Rate'=`précipitation (en mm)`, etc.).
+Il faut noter que bien que nous ayons une relation de type *One to Many* entre l'identifiant du site de comptage et l'identifiant du compteur (un compteur n'appartient jamais qu'à un seul site de comptage, et il y a fréquemment 2 compteurs (1 dans chaque direction) pour un même site), nous avons sciemment choisi de conserver l'identifiant du site de comptage dans notre jeu de données alors que nous aurions pu l'éliminer.<br>
+Cependant, à ce stade de notre étude, nous ne savions pas si nous allions nous focaliser sur les sites de comptage ou les compteurs dans notre analyse : nous avons donc décider de conserver cette colonne.<br><br>
 
-4. **Mise en place d’un index logique**  
-On utilisera `id_compteur` comme clé unique pour faciliter les jointures et les regroupements futurs entre les jeux compteurs et comptage.
+Le jeu ainsi créé ne contenait ni doublon ni manquant et ne nécessitait donc pas de nettoyage supplémentaire.<br><br>
 
-5. Conversions de format et séparation des colonnes composites
+A l'issu de cette étape, nous avons donc créé un fichier `comptage-velo-donnees-compteurs-allege.csv` dans notre répertoire \data\processed et un fichier de métadonnées `metadatas-donnees-comptage.txt` dans note répertoire \references.
 
-6. On corrige le format de l'identifiant du site de comptage : suppression des virgules et convertion en entier
+#### II.A.2.b. Extraction du jeu de compteur
 
-7. Gestion des champs de date et heure
+On utilisera `id_compteur` comme clé unique pour faciliter les jointures et les regroupements futurs entre les jeux compteurs et comptage.<br>
 
-On s'assure de  la conversion du champ `Date et heure de comptage` du format 'object' en format `datetime` en prenant en compte le fuseau horaire et on créé les champs de `Date` et `Heure`.
+Bien que certaines colonnes (photos notamment) aient été identifiés comme inutiles, certains membres du groupe n'ont pas voulu les éliminer à ce stade, nous avons donc repris l'ensemble des colonnes et simplement écarté les informations liées au comptage horaire. Bien que seule les informations géographiques et les couples id_compteur et id_site associés à leurs noms nous aient été utiles, nous avons donc conservé les colonnes suivantes :
+* `id_compteur`
+* `nom_compteur`
+* `id_site`
+* `nom_site`
+* `date_installation`
+* `photo_site`
+* `coordonnees`
+* `id_technique_compteur`
+* `ID Photos`
+* `test_lien_vers_photos_du_site_de_comptage_`
+* `id_photo_1`
+* `url_sites`
+* `type_dimage`
+* `latitude`
+* `longitude`
 
-8. Extraction de la latitude et de la longitude des compteurs
+Une fois les nombreux doublons supprimés, il restait quelque valeurs manquantes mais uniquement sur des colonnes qui ne nous intéressait pas (photos) et nous n'avons donc pas cherché à les remplacer.
 
-#### II.A.1.b. Scission du jeu principal en 2 jeux
+### II.A.3. Géolocalisation des compteurs
 
-#### II.A.2. Préparation des avis pour l'analyse textuelle <a id="IIA2"></a>
+Nous avons cherché à situer nos compteurs sur une carte, ceci afin de pouvoir valider ultérieurement l'intérêt de croiser ou non ces positions avec celles des commentaires du baromètre FUB.
+Pour cela, si nous avions effectivement créé une colonne de `latitude` et `longitude` pour faciliter l'usage dans Power BI, nous avons préféré opter pour la création d'une colonne de type GEOMETRY pour une visualisation Python avec `geopandas`. Nous avons donc créé un point géographique à partir des coordonnées pour créé un GeoDataFrame.
+Pour cette visualisation, nous avons utilisé le système de référence de coordonnées (CRS) du système GPS en latitude/longitude en WGS84. Nous avons donc utilisé la projet "EPSG:4326" et nous avons stocké ce point dans un champ nommé `geometry`.
 
-#### II.A.2.1. Regroupemeent des données <a id="IIA21"></a>
+A l'issu de cette étape, nous avons créé un fichier `compteurs_velo.csv` dans notre répertoire \data\processed et un fichier de métadonnées `metadatas-donnees-compteur.txt` dans note répertoire \references.
 
-#### II.A.2.2. Normalisation et lemmatisation du texte en français <a id="IIA22"></a>
+La création de ce point géographique nous a permis ensuite de positionner chaque compteur sur une carte de Paris dynamique avec la librairie folium (cf. rapport d'exploration), carte que nous avons mise de côté pour superposer plus tard avec les avis des cyclistes.
+<div style="text-align:center; margin: 20px 0;">
+  <figure style="display:inline-block; width:100%; margin:0 1%;">
+    <img src="images/carte_compteur.png" alt="emplacement des compteurs" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 8 — Emplacement des compteurs
+    </figcaption>
+  </figure>
+</div>
+
+## II.B. Exploration et Préprocessing des jeux d'enrichissement avec Python  <a id="IIB"></a>
+
+#### II.B.1 Jeu de données météorologique <a id="IIB1"></a>
+
+L'exploration et la préparation du jeu de donnée météo a été faite dans un Jupyter Notebook nommé `méteo.ipynb`.
+
+Le jeu de données téléchargé `Q_75_latest-2024-2025_RR-T-Vent.csv` contenait l'intégralité des données de 2024 et 2025, soit 3875 lignes et 57 colonnes. nous avons donc commencé par le restreindre à la même plage de date que notre jeu de comptage soit du 01/09/2024 au 30/09/2025.
+
+D'autre part, le jeu de donnée correspondait aux résultats de 6 capteurs météo de la capitale.
+Nous avons considèrer ces 6 stations météo comme complémentaires : s'il y a quelque différence d'altitude entre la Tour Eiffel et les jardins du Luxembourg, il n'y a cependant pas de différences climatiques significatives par rapport à notre analyse. Nous aovns donc agrègé les données en prenant la moyenne des non nuls pour chaque paramètre n'identifiant pas le capteur.
+
+Nous avons ensuite cherché à supprimer les colonnes ne nous intéressant pas. Pour cela nous avons consulté la notice en ligne du jeu de donnée afin de comprendre les intitulés peu explicites pour les non météorologues.
+Il s'est avéré que toutes les colonnes commençant par la lettre 'Q' étaient des colonnes techniques qualifiant le niveau de qualité de la mesure et non la mesure elle-même, nous pouvions donc les éliminer.
+L'analyse des manquants nous a par ailleurs permis de supprimer d'autres colonnes, intégralement vides car ne correspondant tout simplement pas au climat parisien sur notre période.
+Il nous restait alors une série de colonne que nous avons pu renommer avec leur définition respectives plutôt que leurs abbreviations anglosaxonnes:
+
+<table class="table-compact">
+  <thead>
+    <tr><th>Nom de colonne initial</th><th>Nouveau nom</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>RR</td><td>RR précipitations (mm)</td></tr>
+    <tr><td>DRR</td><td>DRR durée de précipitations (mn)</td></tr>
+    <tr><td>TN</td><td>TN temp. mini (°C)</td></tr>
+    <tr><td>HTN</td><td>HTN heure la + froide (hhmn)</td></tr>
+    <tr><td>TX</td><td>TX temp. max (°C)</td></tr>
+    <tr><td>HTX</td><td>HTX heure la + chaude (hhmn)</td></tr>
+    <tr><td>TNTXM</td><td>TNTXM temp. moyenne quotidienne (°C)</td></tr>
+    <tr><td>TAMPLI</td><td>TAMPLI amplitude thermique (°C)</td></tr>
+    <tr><td>TNSOL</td><td>TNSOL temp. mini à 10cm du sol (°C)</td></tr>
+    <tr><td>TN50</td><td>TNSOL temp. mini à 50cm du sol (°C)</td></tr>
+    <tr><td>DG</td><td>DG durée de gel sous abri (mn)</td></tr>
+    <tr><td>FFM</td><td>FFM force moyenne sur 10mn du vent à 10m (m/s)</td></tr>
+    <tr><td>FF2M</td><td>FF2M force moyenne sur 10mn du vent à 2m (m/s)</td></tr>
+    <tr><td>FXY</td><td>FXY force max du vent moyen sur 10mn à 10m (m/s)</td></tr>
+    <tr><td>DXY</td><td>DXY direction du vent moyen à 10m (rose de 360)</td></tr>
+    <tr><td>FXI</td><td>FXI force max instantanée du vent à 10m (m/s)</td></tr>
+    <tr><td>HXI</td><td>HXI heure du vent max instantanée à 10m (hhmm)</td></tr>
+    <tr><td>DXI</td><td>DXY direction du vent max instantanée à 10m (rose de 360)</td></tr>
+    <tr><td>FXI2</td><td>FXI force max instantanée du vent à 2m (m/s)</td></tr>
+    <tr><td>HXI2</td><td>HXI heure du vent max instantanée à 2m (hhmm)</td></tr>
+    <tr><td>DXI2</td><td>DXY direction du vent max instantanée à 2m (rose de 360)</td></tr>
+    <tr><td>FXI3S</td><td>FXI3S force max quotidienne sur 3sec du vent à 10m (m/s)</td></tr>
+    <tr><td>HXI3S</td><td>HXI3S heure du vent max sur 3 sec à 10m (m/s)</td></tr>
+  </tbody>
+</table>
+
+
+
+#### II.B.2. Jeu de données de l'enquête de la FUB <a id="IIB2"></a>
+
+Après en avoir fait la demande auprès de la FUB, nous avons téléchargé les jeux de données du baromètre 2025 pour la ville de Paris.
+La notice du jeu de données est présentée en <a href="#ann2c">Annexe 2c</a>. Dans le cadre de notre projet, nous avons uniquement utilisé les fichiers .geojson contenant les descriptions données par les répondant pour chacun des points (max 9) qu'ils avaient pu identfier.
+
+Deux types de fichiers .geojson étaient disponibles :
+
+* les 3 fichiers de clusters, issu du prétraitement de la FUB et correspondant à un regroupement de points identifiés par les répondants, ces clusters formant des "zones prioritaires". À noter que les fichiers de cluster pour la ville de Paris étant vide (erreur de création ?), nous nous sommes rabattus sur les fichiers de clustering du département 75.
+* les 3 fichiers correspondants à chacune des catégories de points (vert, rouge, bleu). Ces fichiers étant naturellement plus complets que les fichiers de clusters puisque exhaustif.
+
+Dans un premier temps, nous avons commencé notre exploration par les données de clustering, pour voir si les clusters identifiés étaient ou non à proximité de nos compteurs afin de nous assurer de la pertinence du croisement des données.
+
+L'exploration et la préparation du jeu de donnée a été faite dans un Jupyter Notebook nommé `barometre2025.ipynb` ainsi que dans `rapport_d_exploration.ipynb`.
+
+##### II.B.2.a. Exploration des clusters du baromètre FUB <a id="IIB2a"></a>
+
+Surces fichiers, nous avons conservé pour l'exploration le format spécifique des polygones des clusters (avec une liste des points définissant la zone), comme par exemple :
+`MULTIPOLYGON (((2.285062579 48.880798105, 2.284173146 48.880794376, 2.283934653 48.881017294, 2.284509497 48.881230919, 2.285062579 48.880798105)))` et avons cherché à superposer ces clusters sur la carte des compteurs.
+
+##### II.B.2.b. Bilan de l'exploration du baromètre FUB et préparation des points <a id="IIB2b"></a>
+
+#### II.B.3. Préparation des avis pour l'analyse textuelle <a id="IIB3"></a>
+
+##### II.B.3.a. Regroupemeent des données <a id="IIB3a"></a>
+
+##### II.B.3.b. Normalisation et lemmatisation du texte en français <a id="IIB3b"></a>
 
 <a href="#ann3">Annexe 3</a>
 
 <a href="#ann4">Annexe 4</a>
 
-#### II.A.2.3. Choix de l'algorithme le plus pertinent <a id="IIA23"></a>
+##### II.B.3.c. Choix de l'algorithme le plus pertinent <a id="IIB3c"></a>
 
 
-#### II.A.3. Jointure géospatiale des avis <a id="IIA3"></a>
+#### II.B.4. Jointure géospatiale des avis <a id="IIB4"></a>
 
 
 
-#### II.A.4. Fichiers obtenus à l'issu de cette étape <a id="IIA3"></a>
+#### II.B.5. Fichiers obtenus à l'issu de cette étape <a id="IIB5"></a>
 
 À la fin de cette étape, nous disposons de jeu csv retraités :
 - propres et homogènes,  
@@ -454,6 +562,15 @@ On s'assure de  la conversion du champ `Date et heure de comptage` du format 'ob
 
 #### II.B.2. Suppression des champs inutiles et convivialité des champs <a id="IIB2"></a>
 
+**Suppression des colonnes inutiles** qui pénalise fortement les performances car le jeu est trop encombrant. Nous éléminons donc les variables purement descriptives (comme celles liées aux photos) ou redondantes :
+   * `Identifiant technique compteur`,
+   * `Date d\'installation du site de comptage`,
+   * `Lien vers photo du site de comptage`,
+   * `ID Photos`,
+   * `test_lien_vers_photos_du_site_de_comptage_`,
+   * `id_photo_1`,
+   * `url_sites`.
+
 #### II.B.3. Amélioration des noms de compteurs et sites de comptage <a id="IIB3"></a>
 
 <a href="#ann4">Annexe 4</a>
@@ -467,7 +584,7 @@ On s'assure de  la conversion du champ `Date et heure de comptage` du format 'ob
 #### II.C.1. Modélisation en étoile <a id="IIC1"></a>
 
 Résolution du problème de cardinalité
-nos commentaires sont associé à un SITE de comptage et non à un COMPTEUR et donc on se retrouvait avec une relation Many to Many pas top.... on aurait pu transformer le modèle en étoile en flocon mais c'est pas top en terme de performance, donc j'ai préféré modifier le script de @Mohamed Bourquia pour récupérer l'id du compteur le plus proche en considérant arbitrairement le 1er des id trouvés pour un même site de comptage. Ceci m'a permis de modifier le modèle sémantique et de créer la liaison.
+nos commentaires sont associé à un SITE de comptage et non à un COMPTEUR et donc on se retrouvait avec une relation Many to Many pas top.... on aurait pu transformer le modèle en étoile en flocon mais c'est pas top en terme de performance, donc j'ai préféré modifier le script de Mohammed Bourquia pour récupérer l'id du compteur le plus proche en considérant arbitrairement le 1er des id trouvés pour un même site de comptage. Ceci m'a permis de modifier le modèle sémantique et de créer la liaison.
 
 #### II.C.2. Création des tables de date <a id="IIC2"></a>
 
@@ -497,37 +614,39 @@ nos commentaires sont associé à un SITE de comptage et non à un COMPTEUR et d
 
 ### Bilan
 
-### Perspectives : ce que nous aurions pu faire si nous en avions eu le temps.
+### Perspectives :
 
-1. **Enrichir le jeu de données avec celui des aménagements cyclables.**
-<a id="persp1"></a>
-   > Ceci nous aurait permis d'analyser séparément les compteurs sur bande cyclables de ceux sur pistes cyclables par exemple ou de prendre en compte pour ces dernières la largeur de l'aménagement afin de préciser les risques de saturation.
-   > Un tel jeu existe et est disponible [ici](https://www.openstreetmap.org/search?query=Paris&zoom=5&minlon=-34.40917968750001&minlat=38.03078569382294&maxlon=34.23339843750001&maxlat=61.897577621605016#map=13/48.85890/2.33116&layers=C) grace au travail des contributeurs d'OpenStreeMap.
+1. **Enrichir le jeu de données avec celui des aménagements cyclables.**<a id="persp1"></a>
 
-   > La Ville de Paris ne produit pas sa propre carte mais retraite cette carte collaborative en qualifiant la qualité de la donnée et en la mettant à disposition sur son propre OpenData  [ici](https://opendata.paris.fr/explore/dataset/amenagements-cyclables/information/?disjunctive.arrondissement&disjunctive.position_amenagement&disjunctive.vitesse_maximale_autorisee&disjunctive.source&disjunctive.amenagement).
+Ceci nous aurait permis d'analyser séparément les compteurs sur bande cyclables de ceux sur pistes cyclables par exemple ou de prendre en compte pour ces dernières la largeur de l'aménagement afin de préciser les risques de saturation.
+Un tel jeu existe et est disponible [ici](https://www.openstreetmap.org/search?query=Paris&zoom=5&minlon=-34.40917968750001&minlat=38.03078569382294&maxlon=34.23339843750001&maxlat=61.897577621605016#map=13/48.85890/2.33116&layers=C) grace au travail des contributeurs d'OpenStreeMap.<br>
 
-   > Mais son traitement pour intégration dans le jeu de donnée nous aurait pris trop de temps et nous nous sommes donc contenté d'une analyse visuelle de l'aménagement au travers de la photo du site. En effet, le jeu est plus complexe qu'il n'y paraît : 
+La Ville de Paris ne produit pas sa propre carte mais retraite cette carte collaborative en qualifiant la qualité de la donnée et en la mettant à disposition sur son propre OpenData  [ici](https://opendata.paris.fr/explore/dataset/amenagements-cyclables/information/?disjunctive.arrondissement&disjunctive.position_amenagement&disjunctive.vitesse_maximale_autorisee&disjunctive.source&disjunctive.amenagement).<br>
 
-   >* plusieurs traces GPS peuvent être superposées sur une même voie lorsque l'aménagement est bidirectionnel ou être unique lorsqu'il est unidirectionnel, le nombre de catégorie d'aménagement listé est bien plus important que celui à proximité des compteurs (du double sens cyclable à la piste bidirectionnelle en passant par la voie verte, la vélorue où la voie partagée avec les bus pour n'en citer que quelques uns.)
-   >* les aménagements se gèrent comme des dimensions à évolution lente (une fois tous les x mois, un aménagement va être mis à jour pour indiquer par exemple la fin des travaux de création d'une voie de vélopolitain) tandis que notre jeu de donnée à une temporalité courte avec des données horaires.
+Mais son traitement pour intégration dans le jeu de donnée nous aurait pris trop de temps et nous nous sommes donc contenté d'une analyse visuelle de l'aménagement au travers de la photo du site. En effet, le jeu est plus complexe qu'il n'y paraît : 
 
-2. **Identifier l’ordre d’importance des facteurs responsables des variations de flux :**
-<a id="persp2"></a>
-   > Que ces variations soient horaires (effet de journée de travail), hebdomadaires (semaine de travail vs weekend), saisonnières (effet des vacances d'étét ou des fêtes de fin d'années) ou météorogoliques, nous avons en effet pu voir que de nombreux éléments étaient à l'origine des variations.
-   > Si nous avions eu le temps d'aborder les cours de machine learning un peu plus tôt.
-   > Ainsi, nous aurions par exemple pu utiliser un arbre de régression pour ajuster notre calcul de scoring météo, qui est actuellement basé avant tout sur une approche "mon vécu de cycliste" que sur une démarche statistique.
-   > Nous aurions par ailleurs pu tenter d'identifier l'ordre d'importance de ces facteurs pour affiner l'identification des sites nécessitant des modifications d'aménagements
+* plusieurs traces GPS peuvent être superposées sur une même voie lorsque l'aménagement est bidirectionnel ou être unique lorsqu'il est unidirectionnel, le nombre de catégorie d'aménagement listé est bien plus important que celui à proximité des compteurs (du double sens cyclable à la piste bidirectionnelle en passant par la voie verte, la vélorue où la voie partagée avec les bus pour n'en citer que quelques uns.)
+* les aménagements se gèrent comme des dimensions à évolution lente (une fois tous les x mois, un aménagement va être mis à jour pour indiquer par exemple la fin des travaux de création d'une voie de vélopolitain) tandis que notre jeu de donnée à une temporalité courte avec des données horaires.
 
-3. **Rendre dynamique le rapport en le raccordant directement via API.**
-<a id="persp3"></a>
-   > Ceci nous aurait permis d'élargir la période de donnée utilisée plutôt que de se restreindre à 13 mois (donc d'avoir plusieurs étés, plusieurs vacances d'hiver...).
-   > Le jeu étant actualisé quotidiennement avec de nombreux compteurs installés depuis plus de 6 ans, nous aurions ainsi pu étudier des tendances et les données supplémentaires nous auraient permis de commencer à faires des prédictions de trafic pour affiner l'identification des sites :
-   > * pour lesquels un aménagement permettrait d'éviter une future saturation,
-   > * ou pour lesquels un aménagement favoriserait le développement de la part modale cycliste.
+1. **Identifier l’ordre d’importance des facteurs responsables des variations de flux :** <a id="persp2"></a>
 
-4. **Enrichir le jeu de données avec les jeux de données sur l'accidentologie.**
-<a id="persp4"></a>
-  > Le jeu ddit "fichier BAAC" (Base de données Annuelles des Accidents Corporels de la circulation routière de l'Observatoire National Interministériel de la Sécurité Routiers (ONISR) est librement accessible [ici](https://www.data.gouv.fr/datasets/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2024), inclue une localisation des accidents et permetttrait d'améliorer l'identification et la quantification les zones dangereuses afin de prioriser les travaux sur ces zones.
+Que ces variations soient horaires (effet de journée de travail), hebdomadaires (semaine de travail vs weekend), saisonnières (effet des vacances d'étét ou des fêtes de fin d'années) ou météorogoliques, nous avons en effet pu voir que de nombreux éléments étaient à l'origine des variations.<br>
+Si nous avions eu le temps d'aborder les cours de machine learning un peu plus tôt.<br>
+Ainsi, nous aurions par exemple pu utiliser un arbre de régression pour ajuster notre calcul de scoring météo, qui est actuellement basé avant tout sur une approche "mon vécu de cycliste" que sur une démarche statistique.<br>
+Nous aurions par ailleurs pu tenter d'identifier l'ordre d'importance de ces facteurs pour affiner l'identification des sites nécessitant des modifications d'aménagements.
+
+1. **Rendre dynamique le rapport en le raccordant directement via API.**<a id="persp3"></a>
+
+Ceci nous aurait permis d'élargir la période de donnée utilisée plutôt que de se restreindre à 13 mois (donc d'avoir plusieurs étés, plusieurs vacances d'hiver...).<br>
+
+Le jeu étant actualisé quotidiennement avec de nombreux compteurs installés depuis plus de 6 ans, nous aurions ainsi pu étudier des tendances et les données supplémentaires nous auraient permis de commencer à faires des prédictions de trafic pour affiner l'identification des sites :
+
+  * pour lesquels un aménagement permettrait d'éviter une future saturation,
+  * ou pour lesquels un aménagement favoriserait le développement de la part modale cycliste.
+
+4. **Enrichir le jeu de données avec les jeux de données sur l'accidentologie.**<a id="persp4"></a>
+
+Le jeu ddit "fichier BAAC" (Base de données Annuelles des Accidents Corporels de la circulation routière de l'Observatoire National Interministériel de la Sécurité Routiers (ONISR) est librement accessible [ici](https://www.data.gouv.fr/datasets/bases-de-donnees-annuelles-des-accidents-corporels-de-la-circulation-routiere-annees-de-2005-a-2024), inclue une localisation des accidents et permetttrait d'améliorer l'identification et la quantification les zones dangereuses afin de prioriser les travaux sur ces zones.
 
 ### Les difficultés qu'il a fallu relever
 
