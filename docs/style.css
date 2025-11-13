@@ -156,6 +156,63 @@ a.ref {
   color: inherit;          /* garde la couleur du texte */
 }
 
+/* ----------------- Inline code (dans une phrase) ----------------- */
+/* cible plutôt les code inline dans paragraphes/listes pour éviter d'impacter <pre><code> */
+p code,
+li code,
+span.code-inline,
+code.code-inline {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.7rem;       /* taille inline plus petite que texte courant à 1 */
+  padding: 0.08em 0.28em;
+  border-radius: 4px;
+  color: #12239e;
+  background-color: #fffbf0;
+  border: 1px solid #fffbf0;
+  white-space: nowrap;     /* gardé ici **uniquement** pour inline */
+}
+
+
+/* Version sombre */
+@media (prefers-color-scheme: dark) {
+  p code, li code, span.code-inline, code.code-inline {
+    border-color: #444;
+  }
+  pre {
+    background: #2b2b2b;
+  }
+  pre code {
+    color: #12239e;
+  }
+}
+
+
+/* ---------- Style général des blocs de code ---------- */
+/* Le code à l'intérieur du pre : taille réduite et préservation des retours */
+pre code {
+  display: block;          /* assure que le code occupe tout l'espace du pre */
+  font-family: "Courier New", Courier, monospace;
+  font-size: 0.8rem;      /* <-- ajuste ici la taille des blocs de code */
+  line-height: 1.2;
+  white-space: pre-wrap;        /* conserve les sauts de ligne + autorise retour à la ligne  */
+  word-break: break-word;      /* autorise la coupure de mots si nécessaire */
+  overflow-wrap: anywhere;     /* au besoin, casse les très longs mots (utile pour les URLs) */
+}
+
+/* styling général du préformaté */
+pre {
+  margin: 0.8em 0;
+  padding: 0.8em;
+  border-radius: 6px;
+}
+
+/* Version sombre (ne change pas la coloration VS Code, juste l'équilibre) */
+@media (prefers-color-scheme: dark) {
+  pre code {
+    font-size: 0.8rem;
+  }
+}
+
 /* ---------- Création d'un tableau compact ---------- */
 
 .table-compact {

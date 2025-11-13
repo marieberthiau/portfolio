@@ -1,0 +1,699 @@
+DEFINE
+    MEASURE 'MesuresNum'[Flux total] = SUM('comptage-velo-donnees-compteurs-allege'[comptage_horaire])
+    MEASURE 'MesuresNum'[Flux de la veille] = CALCULATE([Flux total], DATEADD('Calendrier'[Date], -1, DAY)) --- c'est faux
+    MEASURE 'MesuresNum'[Variation J/J-1 (%)] = DIVIDE([Flux total] - [Flux de la veille], [Flux de la veille]) -- faux aussi
+    MEASURE 'MesuresNum'[Fux moyen sur 7 jours glissants] = AVERAGEX(
+    DATESINPERIOD('Calendrier'[Date], MAX('Calendrier'[Date]), -7, DAY),
+    [Flux total]
+)
+    MEASURE 'MesuresNum'[Température Moyenne (°C)] = AVERAGE('meteo'[Température Moyenne (°C)])
+    MEASURE 'MesuresNum'[Vent moyen (km/h)] = AVERAGE('meteo'[Vent Moyen (km/h)])
+    MEASURE 'MesuresNum'[Flux moyen] = AVERAGE('comptage-velo-donnees-compteurs-allege'[comptage_horaire])
+    MEASURE 'MesuresNum'[Amplitude Thermique] = VAR TX = SELECTEDVALUE(Meteo[Température Max (°C)])
+VAR TN = SELECTEDVALUE(Meteo[Température Mini (°C)])
+RETURN
+IF( ISBLANK(TX) || ISBLANK(TN), BLANK(), TX - TN )
+    MEASURE 'MesuresNum'[Note globale de météo] = VAR TM = [Température Moyenne (°C)]
+VAR TMin = [Température Mini (°C)]
+VAR TMax = [Température Max (°C)]
+VAR Amplitude = [Amplitude Thermique]
+VAR Vent = [Vent moyen (km/h)]
+VAR Rafale = [Rafale Max (km/h)]
+VAR Pluie = [Niveau Pluie moyen]
+
+-- progression plus punitive sur les fortes chaleur qui en ville sont un facteur limitant, 
+VAR ScoreTempMoyenne =    
+    SWITCH(
+        TRUE(),
+        TM < 5, MAX(10, TM * 2),                    -- soit un score de 4 à 2°C
+        TM >= 5 && TM < 10, 18 + (TM - 5) * 2,      -- soit un score de 16 à 6°C
+        TM >= 10 && TM < 15, 28 + (TM - 10) * 2.4,  -- soit un score de 25,6 à 11°C
+        TM >= 15 && TM <= 22, 40,                   -- plage de score max à 40        
+        TM > 22 && TM <= 27, 40 - (TM - 22) * 2,  -- soit un score de 38 à 23°C        
+        TM > 27 && TM <= 30, 30 - (TM - 27) * 3,    -- soit un score de 27 à 28°C
+        TM > 30 && TM <= 35, 18 - (TM - 30) * 3,  -- soit un score de 15 à 31°C
+        TM > 35, MAX(0, 3 - (TM - 35) * 0.6),       -- soit un score de 2,4 à 36°C  et 0 à 40°C (puis devient négatif)
+        10
+    )
+
+VAR PenaliteFroid =
+    SWITCH(
+        TRUE(),
+        TMin < -5, 5,
+        TMin < 0, 3,
+        TMin < 5, 1,
+        0
+    )
+
+VAR PenaliteChaud =
+    SWITCH(
+        TRUE(),
+        TMax > 35, 5,
+        TMax > 32, 3,
+        TMax > 28, 1,
+        0
+    )
+
+VAR PenaliteAmplitude =   --L'amplitude thermique influence le confort (forte amplitude = plus difficile de s'habiller correctement)
+    SWITCH(
+        TRUE(),
+        Amplitude > 18, 3,
+        Amplitude > 14, 2,
+        Amplitude > 10, 1,
+        0
+    )
+-- pour un trajet matin/soir, on subit potentiellement les 2 extrêmes de température et pas la moyenne
+VAR ScoreTemp = ROUND(ScoreTempMoyenne - PenaliteFroid - PenaliteChaud - PenaliteAmplitude ,0) 
+
+VAR ScorePluie =
+    SWITCH(
+        TRUE(),
+        Pluie = 0, 40,
+        Pluie <= 2, 25,
+        Pluie <= 5, 15,
+        Pluie <= 10, 5,
+        0
+    )
+
+VAR ScoreVent =
+    SWITCH(
+        TRUE(),
+        Vent < 10, 15,
+        Vent > 30, 0,
+        15 - (Vent-10) * 0.75  -- régression linéaire entre 10 et 30 km/h
+    )
+VAR ScoreRafale =
+    SWITCH(
+        TRUE(),
+        Rafale < 30, 5,
+        Rafale > 70, 0,
+        5 - (Rafale-30) * 0.125  -- régression linéaire entre 30 et 70 km/h
+    )
+RETURN
+ScoreTemp + ScorePluie + Round(ScoreVent + ScoreRafale,0)
+    MEASURE 'MesuresNum'[Niveau Pluie moyen] = VAR RR = SUM(meteo[Précipitations (mm)])
+VAR DRR = SUM(meteo[Durée Pluie (min)])
+VAR DRR_Heures = DIVIDE(DRR, 60, 0)
+RETURN RR + DRR_Heures / 2
+    MEASURE 'MesuresNum'[Température Mini (°C)] = MIN('meteo'[Température Mini (°C)])
+    MEASURE 'MesuresNum'[Température Max (°C)] = MAX('meteo'[Température Max (°C)])
+    MEASURE 'MesuresNum'[Rafale Max (km/h)] = MAX('meteo'[Rafale Max (km/h)])
+    MEASURE 'MesuresNum'[Effet Pluie] = VAR FluxMoyenSec = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Cat Pluie] = "temps sec",
+        KEEPFILTERS( meteo[Cat Pluie] = "temps sec" ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+VAR FluxMoyenPluie = 
+    CALCULATE(
+        [Flux moyen],
+        KEEPFILTERS( meteo[Cat Pluie] <> "temps sec" ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+RETURN
+    IF(
+        ISBLANK(FluxMoyenSec),
+        BLANK(),
+        DIVIDE( FluxMoyenPluie - FluxMoyenSec, FluxMoyenSec, 0)
+    )
+    MEASURE 'MesuresNum'[Effet Pluie de Référence] = VAR FluxMoyenSec = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Cat Pluie] = "temps sec",
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+VAR FluxMoyenPluie = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Cat Pluie] <> "temps sec",
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+RETURN
+    DIVIDE(FluxMoyenPluie - FluxMoyenSec, FluxMoyenSec, 0)
+    MEASURE 'MesuresNum'[Sensibilité à la pluie (points de %)] = VAR BaisseContextuelle = [Effet Pluie]
+VAR BaisseReference = [Effet Pluie de Référence]
+RETURN
+    (BaisseContextuelle - BaisseReference) * 100
+    MEASURE 'MesuresNum'[Nb Jours Secs] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Cat Pluie] = "temps sec",       -- on filtre les jours secs
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Pluvieux] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),  -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),
+    meteo[Cat Pluie] <> "temps sec",
+    REMOVEFILTERS(meteo)  --empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Volatilite Trafic] = VAR FluxMoyenSite = [Flux moyen]
+VAR FluxMoyenRef = 
+    CALCULATE(
+        [Flux moyen],
+        ALL('comptage-velo-donnees-compteurs-allege')
+    )
+RETURN
+    ABS(DIVIDE(FluxMoyenSite - FluxMoyenRef, FluxMoyenRef, 0))
+    MEASURE 'MesuresNum'[Effet Météo] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Météo] >=80,  -- 80 correspond au seuil de conditions qualifiées d'Excellentes
+        KEEPFILTERS( 'meteo'[Score Météo] >=80 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        KEEPFILTERS( 'meteo'[Score Météo] <80 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+RETURN
+    IF(
+        ISBLANK(FluxMoyenExc),
+        BLANK(),
+        DIVIDE( FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    )
+    MEASURE 'MesuresNum'[Effet Météo de Référence] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Météo] >=80,
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Météo] <80,
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+RETURN
+    DIVIDE(FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    MEASURE 'MesuresNum'[Sensibilité à la météo (points de %)] = VAR BaisseContextuelle = [Effet Météo]
+VAR BaisseReference = [Effet Météo de Référence]
+RETURN
+    (BaisseContextuelle - BaisseReference) * 100
+    MEASURE 'MesuresNum'[Effet Vent] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Vent] >=18,   -- en dessous de 10 km/h, le score de vent est au max à 15 points pour le vent moyen + 5 points si absence de rafale 
+        KEEPFILTERS( 'meteo'[Score Vent] >=18 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        KEEPFILTERS( 'meteo'[Score Vent] <18 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+RETURN
+    IF(
+        ISBLANK(FluxMoyenExc),
+        BLANK(),
+        DIVIDE( FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    )
+    MEASURE 'MesuresNum'[Effet Vent de Référence] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Vent] >=18,
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Vent] <18,
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+RETURN
+    DIVIDE(FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    MEASURE 'MesuresNum'[Sensibilité au vent (points de %)] = VAR BaisseContextuelle = [Effet Vent]
+VAR BaisseReference = [Effet Vent de Référence]
+RETURN
+    (BaisseContextuelle - BaisseReference) * 100
+    MEASURE 'MesuresNum'[Effet Température de Référence] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Température] >=39,  -- le seuil à 39/40 permet de retenir 127 jours/395 ce qui est suffisant pour servir de référence
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Température] <39,
+        ALL('comptage-velo-donnees-compteurs-allege'), -- enelève les filtres sur la table de faits (période, compteur...)
+        ALL('Calendrier')
+    )
+RETURN
+    DIVIDE(FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    MEASURE 'MesuresNum'[Effet Température] = VAR FluxMoyenExc = 
+    CALCULATE(
+        [Flux moyen],
+        'meteo'[Score Température] >=39,  -- le seuil à 39/40 permet de retenir 127 jours/395 ce qui est suffisant pour servir de référence
+        KEEPFILTERS( 'meteo'[Score Température] >=39 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+VAR FluxMoyenAut = 
+    CALCULATE(
+        [Flux moyen],
+        KEEPFILTERS( 'meteo'[Score Température] < 39 ),
+        'comptage-velo-donnees-compteurs-allege'[comptage_horaire] >= 0 
+    )
+RETURN
+    IF(
+        ISBLANK(FluxMoyenExc),
+        BLANK(),
+        DIVIDE( FluxMoyenAut - FluxMoyenExc, FluxMoyenExc, 0)
+    )
+    MEASURE 'MesuresNum'[Sensibilité à la température (points de %)] = VAR BaisseContextuelle = [Effet Température]
+VAR BaisseReference = [Effet Température de Référence]
+RETURN
+    (BaisseContextuelle - BaisseReference) * 100
+    MEASURE 'MesuresNum'[Nb Jours Excellents] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Météo] >=80,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Non Excellents] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Météo] <80,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Agréables] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Température] >=39,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Moins Agréables] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Température] <39,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Calmes] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Vent] >=18,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Nb Jours Venteux] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+RETURN
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage),       -- on limite aux dates où il y a du comptage
+    meteo[Score Vent] <18,       -- on filtre les jours excellents
+    REMOVEFILTERS(meteo)                  -- on empêche le contexte des lignes d’écraser le filtre météo
+)
+    MEASURE 'MesuresNum'[Effet observé] = SWITCH(
+        TRUE(),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la pluie (points de %)]",[Effet Pluie],
+        [Axe d'analyse]="'MesuresNum'[Sensibilité au vent (points de %)]",[Effet Vent],
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la température (points de %)]",[Effet Température],
+        [Effet Météo]
+    )
+    MEASURE 'MesuresNum'[Effet de référence] = SWITCH(
+        TRUE(),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la pluie (points de %)]",[Effet Pluie de Référence],
+        [Axe d'analyse]="'MesuresNum'[Sensibilité au vent (points de %)]",[Effet Vent de Référence],
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la température (points de %)]",[Effet Température de Référence],
+        [Effet Météo de Référence]
+    )
+    MEASURE 'MesuresNum'[NbJours] = SWITCH(
+        TRUE(),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la pluie (points de %)]",MIN([Nb Jours Secs], [Nb Jours Pluvieux]),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité au vent (points de %)]",MIN([Nb Jours Calmes], [Nb Jours Venteux]),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la température (points de %)]",MIN([Nb Jours Agréables], [Nb Jours Moins Agréables]),
+        MIN([Nb Jours Excellents], [Nb Jours Non Excellents])
+    )
+    MEASURE 'MesuresNum'[Précipitations totales] = sum(meteo[Précipitations (mm)])
+    MEASURE 'MesuresNum'[Durée de pluie] = sum(meteo[Durée Pluie (min)])
+    MEASURE 'MesuresNum'[Flux max] = CALCULATE(
+    MAX('comptage-velo-donnees-compteurs-allege'[comptage_horaire]),
+    KEEPFILTERS( VALUES('Calendrier'[Date]) )
+)
+    MEASURE 'MesuresNum'[Nb Jours au-dessus du Seuil] = VAR SeuilUtilisateur = SELECTEDVALUE('Seuil Flux Journalier'[Seuil Flux Journalier], 3000)
+VAR TableJours = 
+    SUMMARIZE(
+       'Calendrier',
+        'Calendrier'[Date],
+        "FluxJour", [Flux total]
+    )
+VAR NbJoursAuDessus = 
+    COUNTROWS(
+        FILTER(
+            TableJours,
+            [FluxJour] > SeuilUtilisateur
+        )
+    )
+RETURN
+    NbJoursAuDessus
+    MEASURE 'MesuresNum'[Nb Jours Moyen au-dessus du Seuil] = VAR SeuilUtilisateur = SELECTEDVALUE('Seuil Flux Journalier'[Seuil Flux Journalier], 3000)
+VAR TableSitesJours = 
+    SUMMARIZE(
+        'comptage-velo-donnees-compteurs-allege',
+        'comptage-velo-donnees-compteurs-allege'[id_site],  
+        'Calendrier'[Date],
+        "FluxJour", [Flux total]
+    )
+VAR TableParSite = 
+    ADDCOLUMNS(
+        VALUES('comptage-velo-donnees-compteurs-allege'[id_site]),
+        "@NbJoursAuDessus",
+            VAR SiteActuel = 'comptage-velo-donnees-compteurs-allege'[id_site]
+            RETURN
+                COUNTROWS(
+                    FILTER(
+                        FILTER(
+                            TableSitesJours,
+                            'comptage-velo-donnees-compteurs-allege'[id_site] = SiteActuel
+                        ),
+                        [FluxJour] > SeuilUtilisateur
+                    )
+                )
+    )
+VAR NbJoursMoyen = AVERAGEX(TableParSite, [@NbJoursAuDessus])
+RETURN
+    NbJoursMoyen
+    MEASURE 'MesuresNum'[% Jours au-dessus du Seuil] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+VAR NbJoursPeriode = 
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage))       -- on limite aux dates où il y a du comptage
+VAR NbJoursMoyenAuDessus = [Nb Jours Moyen au-dessus du Seuil]
+RETURN
+    DIVIDE(NbJoursMoyenAuDessus, NbJoursPeriode, 0)
+    MEASURE 'MesuresNum'[Card Analyse Seuil] = VAR Seuil = SELECTEDVALUE('Seuil Flux Journalier'[Seuil Flux Journalier], 3000)
+VAR NbJoursMoyen = [Nb Jours Moyen au-dessus du Seuil]
+VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+VAR NbJoursPeriode = 
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage))       -- on limite aux dates où il y a du comptage
+VAR Pct = [% Jours au-dessus du Seuil]
+VAR NbSites = DISTINCTCOUNT('comptage-velo-donnees-compteurs-allege'[id_site])
+RETURN
+    FORMAT(NbJoursMoyen, "0") & " jours au dessus / " & NbJoursPeriode & UNICHAR(10) &
+    "Soit: " & FORMAT(Pct, "0%") & " des jours" & UNICHAR(10) &
+    "(moy sur " & NbSites & " sites)"
+    MEASURE 'MesuresNum'[Flux journalier moyen] = VAR DatesAvecComptage =
+    FILTER(
+        VALUES( Calendrier[Date] ),   -- on itère sur les dates réelles (=contexte calendrier)
+        CALCULATE(
+            COUNTROWS( 'comptage-velo-donnees-compteurs-allege' ),  -- on vérifie qu'il existe au moins une ligne de comptage pour cette date,
+            REMOVEFILTERS( 'compteurs_velo' )                       -- en ignorant les filtres sur la table des compteurs (site/compteur)
+        ) > 0
+    )
+VAR NbJoursPeriode = 
+CALCULATE(
+    DISTINCTCOUNT(Calendrier[Date]),
+    KEEPFILTERS(DatesAvecComptage))       -- on limite aux dates où il y a du comptage
+VAR FluxTotalJournalier =
+CALCULATE(
+    SUM('comptage-velo-donnees-compteurs-allege'[comptage_horaire]),
+    KEEPFILTERS( VALUES('Calendrier'[Date]) )
+)
+RETURN
+DIVIDE(FluxTotalJournalier,NbJoursPeriode,0)
+    MEASURE 'MesuresCat'[Cat Amplitude] = VAR Amp = [Amplitude Thermique]
+RETURN
+SWITCH(
+    TRUE(),
+    ISBLANK(Amp), "Donnée manquante",
+    Amp < 5, "Faible (<5°C)",
+    Amp < 10, "Modérée (5-10°C)",
+    Amp < 15, "Importante (10-15°C)",
+    "Très importante (>15°C)"
+)
+    MEASURE 'MesuresCat'[Cat Pluie] = VAR NP = [Niveau Pluie moyen]
+RETURN
+SWITCH(
+    TRUE(),
+    ISBLANK(NP), "Donnée manquante",
+    NP = 0, "temps sec",
+    NP <= 1, "bruine",                                  -- 0,5 mm en 30 min OU 1 mm très brièvement
+    NP <= 3, "pluie faible",                            -- 2 mm en 1h OU 3 mm brièvement
+    NP <= 7, "pluie modérée : équipement nécessaire",   -- 5 mm pendant 1h = conditions humides sérieuses
+    NP <= 12, "pluie forte : conditions difficiles",     -- 10 mm pendant 2h = vraiment détrempé
+    "pluie dangereuse : cyclisme déconseillé"           -- 15 mm pendant 3h = conditions extrêmes
+)
+    MEASURE 'MesuresCat'[Cat Rafale] = VAR Vent = AVERAGE('meteo'[Rafale Max (km/h)])
+RETURN
+SWITCH(
+    TRUE(),
+    ISBLANK(Vent), "Donnée manquante",
+    Vent < 25, "Rafales négligeables (<25 km/h)",
+    Vent < 45, "Rafales modérées un peu gênantes (25-45 km/h",
+    Vent < 70, "Rafales fortes dangereuses (45-70 km/h)",
+    "Rafales très dangereuses (>70 km/h)"
+)
+    MEASURE 'MesuresCat'[Cat Vent] = VAR Vent = [Vent moyen (km/h)]
+VAR Rafale = [Rafale Max (km/h)]
+RETURN
+SWITCH(
+    TRUE(),
+    Vent >= 40 || Rafale >= 75 || (Vent >= 30 && Rafale >= 65), "tempêtueux cyclisme déconseillé",
+    Vent >= 30 || Rafale >= 60 || (Vent >= 25 && Rafale >= 55), "très fort et dangereux",
+    Vent >= 20 || Rafale >= 50, "pénible mais praticable",
+    Vent >= 15 || Rafale >= 40, "modéré mais commence à gêner",
+    Vent >= 10 || Rafale >= 30, "léger mais acceptable",
+    "calme idéal"
+    )
+    MEASURE 'MesuresCat'[Catégorie Température] = VAR TM = [Température Moyenne (°C)]
+VAR TMin = [Température Mini (°C)]
+VAR TMax = [Température Max (°C)]
+
+VAR Categorie =
+    SWITCH(
+        TRUE(),
+        TMin < -2 || TM < 3, "froid extrême",
+        TMin < 5 || TM < 10, "froid mais gérable",
+        TM >= 10 && TM < 15, "frais",
+        TM >= 15 && TM <= 25 && TMax <= 28, "doux",
+        (TM > 22 && TM <= 28) || (TMax > 28 && TMax <= 32), "chaud",
+        TM > 28 || TMax > 32, "très chaud",
+        
+        "autre"
+    )
+
+RETURN Categorie
+    MEASURE 'MesuresCat'[Conditions Globales] = VAR SM = [Note globale de météo]
+RETURN
+SWITCH(
+    TRUE(),
+    ISBLANK(SM), "inconnues",
+    SM >=80, "excellentes",
+    SM >=60, "bonnes",
+    SM >=40, "acceptables",
+    SM >=20, "difficiles",
+    "très difficiles"
+)
+    MEASURE 'MesuresCat'[Significativité] = VAR RatioSite = [Effet observé]+1
+VAR RatioRef =  [Effet de référence]+1
+VAR EcartRatio = ABS(RatioSite - RatioRef)
+
+VAR NbJours = [NbJours]
+VAR SeuilSignificativite = 
+    SWITCH(
+        TRUE(),
+        NbJours >= 50, 0.05,  // Seuil 5% pour grands échantillons
+        NbJours >= 30, 0.08,  // Seuil 8% pour échantillons moyens
+        NbJours >= 10, 0.12,  // Seuil 12% pour petits échantillons
+        0.20                  // Seuil 20% pour très petits échantillons
+    )
+VAR SeuilTexte = FORMAT(SeuilSignificativite, "0 pt")
+RETURN
+    IF(
+        EcartRatio > SeuilSignificativite && NbJours >= 10,   -- par exemple pour une période > 50j, si j'ai plus de 5 points d'écarts entre l'effet pluie de référence et l'effet pluie c'est significatif
+        "✓ Significatif (seuil >=" & SeuilTexte & ")",
+        "Non significatif (seuil <" & SeuilTexte & ")"
+    )
+    MEASURE 'MesuresCat'[Axe d'analyse] = VALUES('Mesure sélectionnée'[Mesure sélectionnée Fields])
+    MEASURE 'MesuresCat'[Libellé mesure sélectionnée] = SWITCH(
+        TRUE(),
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la pluie (points de %)]","Sensibilité à la pluie 🌧️",
+        [Axe d'analyse]="'MesuresNum'[Sensibilité au vent (points de %)]","Sensibilité au vent 🌬️",
+        [Axe d'analyse]="'MesuresNum'[Sensibilité à la température (points de %)]","Sensibilité à la température 🌡️",
+        "Sensibilité à la météo ⛅"  
+    )
+    MEASURE 'MesuresCat'[Site le + sensible] = VAR TableSites = 
+    ADDCOLUMNS(
+        VALUES(compteurs_velo[Site de comptage]), 
+        "@Sensibilite", [Axe d'analyse]
+    )   // Remplace par le nom de ta colonne site
+VAR SiteMin = 
+    MINX(
+        TableSites,
+        [@Sensibilite]
+    )
+VAR NomSite = 
+    MAXX(
+        FILTER(
+            TableSites,
+            [@Sensibilite] = SiteMin
+        ),
+        compteurs_velo[Site de comptage]
+    )
+RETURN
+    NomSite
+    MEASURE 'MesuresCat'[Catégorie Seuil] = VAR SeuilUtilisateur = SELECTEDVALUE('Seuil Flux Journalier'[Seuil Flux Journalier], 3000)
+VAR FluxSite = [Flux total]
+RETURN
+    IF(
+        FluxSite >= SeuilUtilisateur,
+        ">="&FORMAT(SeuilUtilisateur,"#,0"),
+        "<"&FORMAT(SeuilUtilisateur,"#,0")
+    )
+    MEASURE 'Seuil Flux Journalier'[Seuil Flux Journalier Value] = SELECTEDVALUE('Seuil Flux Journalier'[Seuil Flux Journalier], 3000)
+
+EVALUATE
+    SUMMARIZECOLUMNS(
+        "Flux total", [Flux total],
+        "Flux de la veille", [Flux de la veille],
+        "Variation J/J-1 (%)", [Variation J/J-1 (%)],
+        "Fux moyen sur 7 jours glissants", [Fux moyen sur 7 jours glissants],
+        "Température Moyenne (°C)", [Température Moyenne (°C)],
+        "Vent moyen (km/h)", [Vent moyen (km/h)],
+        "Flux moyen", [Flux moyen],
+        "Amplitude Thermique", [Amplitude Thermique],
+        "Note globale de météo", [Note globale de météo],
+        "Niveau Pluie moyen", [Niveau Pluie moyen],
+        "Température Mini (°C)", [Température Mini (°C)],
+        "Température Max (°C)", [Température Max (°C)],
+        "Rafale Max (km/h)", [Rafale Max (km/h)],
+        "Effet Pluie", [Effet Pluie],
+        "Effet Pluie de Référence", [Effet Pluie de Référence],
+        "Sensibilité à la pluie (points de %)", [Sensibilité à la pluie (points de %)],
+        "Nb Jours Secs", [Nb Jours Secs],
+        "Nb Jours Pluvieux", [Nb Jours Pluvieux],
+        "Volatilite Trafic", [Volatilite Trafic],
+        "Effet Météo", [Effet Météo],
+        "Effet Météo de Référence", [Effet Météo de Référence],
+        "Sensibilité à la météo (points de %)", [Sensibilité à la météo (points de %)],
+        "Effet Vent", [Effet Vent],
+        "Effet Vent de Référence", [Effet Vent de Référence],
+        "Sensibilité au vent (points de %)", [Sensibilité au vent (points de %)],
+        "Effet Température de Référence", [Effet Température de Référence],
+        "Effet Température", [Effet Température],
+        "Sensibilité à la température (points de %)", [Sensibilité à la température (points de %)],
+        "Nb Jours Excellents", [Nb Jours Excellents],
+        "Nb Jours Non Excellents", [Nb Jours Non Excellents],
+        "Nb Jours Agréables", [Nb Jours Agréables],
+        "Nb Jours Moins Agréables", [Nb Jours Moins Agréables],
+        "Nb Jours Calmes", [Nb Jours Calmes],
+        "Nb Jours Venteux", [Nb Jours Venteux],
+        "Effet observé", [Effet observé],
+        "Effet de référence", [Effet de référence],
+        "NbJours", [NbJours],
+        "Précipitations totales", [Précipitations totales],
+        "Durée de pluie", [Durée de pluie],
+        "Flux max", [Flux max],
+        "Nb Jours au-dessus du Seuil", [Nb Jours au-dessus du Seuil],
+        "Nb Jours Moyen au-dessus du Seuil", [Nb Jours Moyen au-dessus du Seuil],
+        "% Jours au-dessus du Seuil", [% Jours au-dessus du Seuil],
+        "Card Analyse Seuil", [Card Analyse Seuil],
+        "Flux journalier moyen", [Flux journalier moyen],
+        "Cat Amplitude", [Cat Amplitude],
+        "Cat Pluie", [Cat Pluie],
+        "Cat Rafale", [Cat Rafale],
+        "Cat Vent", [Cat Vent],
+        "Catégorie Température", [Catégorie Température],
+        "Conditions Globales", [Conditions Globales],
+        "Significativité", [Significativité],
+        "Axe d'analyse", [Axe d'analyse],
+        "Libellé mesure sélectionnée", [Libellé mesure sélectionnée],
+        "Site le + sensible", [Site le + sensible],
+        "Catégorie Seuil", [Catégorie Seuil],
+        "Seuil Flux Journalier Value", [Seuil Flux Journalier Value]
+    )
