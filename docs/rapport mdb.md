@@ -55,6 +55,9 @@ pdf_options:
       - [II.C.1. Collecte des données ](#iic1-collecte-des-données-)
       - [II.C.2. Transformations sur la table des compteurs ](#iic2-transformations-sur-la-table-des-compteurs-)
       - [II.C.3. Création d'un score météo ](#iic3-création-dun-score-météo-)
+      - [II.C.4. Corrections des anomalies. ](#iic4-corrections-des-anomalies-)
+      - [II.C.4.1. Sites de comptage arrêtés ](#iic41-sites-de-comptage-arrêtés-)
+      - [II.C.4.2. Sites avec des valeurs aberrantes ](#iic42-sites-avec-des-valeurs-aberrantes-)
     - [II.D. Préprocessing dans Power BI ](#iid-préprocessing-dans-power-bi-)
       - [II.D.1. Création des tables de date ](#iid1-création-des-tables-de-date-)
       - [II.D.2. Modélisation en étoile ](#iid2-modélisation-en-étoile-)
@@ -65,9 +68,11 @@ pdf_options:
   - [III.A. Thème et organisations visuelles des pages](#iiia-thème-et-organisations-visuelles-des-pages)
   - [III.B. La page d'accueil du rapport](#iiib-la-page-daccueil-du-rapport)
   - [III.C. La page de Focus Site](#iiic-la-page-de-focus-site)
+  - [III.D. Pages complémentaires de sensibilité météo](#iiid-pages-complémentaires-de-sensibilité-météo)
+    - [III.D.1. Page "Météo et Mobilité"](#iiid1-page-météo-et-mobilité)
+    - [III.D.2. Page "Sensibilité Météo"](#iiid2-page-sensibilité-météo)
 - [IV. Analyse des données ](#iv-analyse-des-données-)
-- [Conclusion](#conclusion)
-  - [Bilan](#bilan)
+- [Conclusion et bilan](#conclusion-et-bilan)
   - [Perspectives :](#perspectives-)
   - [Les difficultés qu'il a fallu relever](#les-difficultés-quil-a-fallu-relever)
 - [Bibliographie](#bibliographie)
@@ -218,7 +223,7 @@ Il est possible de naviguer dans les données directement sur le site et ainsi d
 
 <div style="text-align:center; margin: 20px 0;">  
   <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/carte_open_data.png" alt="emplacement des compteurs dans le plan vélo 2021-2026" style="width:100%; display:block;">
+    <img src="images/carte_open_data.png" alt="emplacement des compteurs dans le plan vélo 2021-2026" style="width:90%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 2 — Emplacement des compteurs dans le Plan Vélo 2021-2026
     </figcaption>
@@ -251,7 +256,7 @@ La donnée principale étant une notion de comptage, on peut en deuxième approc
     </div>
 </div>
 
-<div style="display: table; width: 100%; margin-top: -40px; margin-bottom: 1em;">
+<div style="display: table; width: 100%; margin-top: -20px; margin-bottom: 1em;">
   <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
     Il semble aussi y avoir un effet du <b>jour de la semaine</b> (ou du caractère ouvré ou non de ce jour).<br>
     On voit par exemple ci-contre sur le Pont de la Concorde un effet qui semble correspondre aux week-ends.
@@ -313,8 +318,6 @@ Ces jeux permettront d'enrichier la table des sites de comptage afin de croiser 
 
 * les données météo quotidiennes (on a vu lors du rapport de découverte que certaines semaines semblent plus faibles que d'autres en période hivernale) : on pourra utiliser le [jeu de donnée météo des 6 capteurs météo de la capitale](https://www.data.gouv.fr/api/1/datasets/r/aba837dc-fc7c-4010-ab5e-0eb02feb0010) pour référence.
 
-<hr class="page-break">
-
 ### I.E. Bilan de l'étape de découverte des données
 
 À l'issue de cette étape, nous décidons de centrer notre analyse sur une visualisation graphique : 
@@ -323,6 +326,7 @@ Ces jeux permettront d'enrichier la table des sites de comptage afin de croiser 
 
 Nous compléterons d'une analyse de l'effet de la météo et ses différentes composantes (température, pluviométrie, vent) et de son effet sur le flux de cycliste.<br>
 Nous essaierons de mesurer son effet sur les zones de comptage : les cyclistes évitent-ils certains secteurs les jours de pluie (effet de qualité du revêtement (pavé...)) ou au contraire en période de forte chaleur (revêtement à fort albedo, absence d'ombre ?)<br><br>
+<hr class="page-break">
 
 ## II. Pré-processing
 
@@ -349,7 +353,7 @@ La présence de quelques données manquantes (moins de 4% des lignes étant conc
 
 <div style="text-align:center; margin: 20px 0;">
   <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/heatmap_manquants.png" alt="données manquantes dans le jeu principal" style="width:100%; display:block;">
+    <img src="images/heatmap_manquants.png" alt="données manquantes dans le jeu principal" style="width:90%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 7 — Visualisation des données manquantes par lignes et colonnes dans le jeu de donnée principal
     </figcaption>
@@ -444,7 +448,7 @@ A l'issu de cette étape, nous avons créé un fichier `compteurs_velo.csv` dans
 La création de ce point géographique m'a permis ensuite de positionner chaque compteur sur une carte de Paris dynamique avec la librairie folium (cf. rapport d'exploration), carte que nous avons mise de côté pour superposer plus tard avec les avis des cyclistes.<br>
 <div style="text-align:center; margin: 20px 0;">
   <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/carte_compteurs.png" alt="emplacement des compteurs" style="width:100%; display:block;">
+    <img src="images/carte_compteurs.png" alt="emplacement des compteurs" style="width:90%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 8 — Emplacement des compteurs
     </figcaption>
@@ -523,7 +527,8 @@ Nous avons également supprimé les colonnes qui ne nous intéressait pas : `com
 
 <div style="display: table; width: 100%;">
   <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
-  Sur ce GeoDataFrame, nous étions confronté au format spécifique des polygones des clusters (avec une liste des points définissant la zone), comme par exemple :<code>MULTIPOLYGON (((2.285062579 48.880798105, 2.284173146 48.880794376, 2.283934653 48.881017294, 2.284509497 48.881230919, 2.285062579 48.880798105)))</code> que nous cherchions à superposer sur notre <a href="#IIA3">carte des compteurs</a>.<br>
+  Sur ce GeoDataFrame, nous étions confronté au format spécifique des polygones des clusters, avec une liste des points définissant la zone.<br>
+  Par exemple :<code>MULTIPOLYGON (((2.285062579 48.880798105, 2.284173146 48.880794376, 2.283934653 48.881017294, 2.284509497 48.881230919, 2.285062579 48.880798105)))</code> que nous cherchions à superposer sur notre <a href="#IIA3">carte des compteurs</a>.<br>
   Avec la librairie <code>shapely</code>, j'ai pu travailler sur la création de cette superposition dont une partie du script est en <a href="#ann3">Annexe 3</a>.
   </div>
   <div style="display: table-cell; width: 45%; vertical-align: top;">
@@ -678,7 +683,7 @@ Le détail de cette 2ème partie du script est proposé en <a href="#ann5b">Anne
 </table>
 
 On remarque que certaines colonnes ne seraient pas nécessairement indispensables à la suite du projet : l'identifiant du compteur est suffisant pour faire la jointure dans le modèle de donnée Power BI. <br>
-Les 2 colonnes liées au site de comptage (identifiant et nom) sont en effet là uniquement parce que crées lors la phase de calcul : en décidant de rapprocher les commentaires de nos zones de comptage, nous nous étions en effet d'abord focaliser sur le site de comptage, considérant le sens comme n'étant pas renseigné dans le commentaire. Mais cela induisait la création d'une relation Many to Many dans le modèle Power BI et c'est pourquoi nous sommes finalement revenu sur notre script pour rattacher le commentaire à un compteur.
+Les 2 colonnes liées au site de comptage (identifiant et nom) sont en effet là uniquement parce que crées lors la phase de calcul : en décidant de rapprocher les commentaires de nos zones de comptage, nous nous étions en effet d'abord focalisé sur le site de comptage, considérant le sens comme n'étant pas renseigné dans le commentaire. Mais cela induisait la création d'une relation *Many to Many* dans le modèle Power BI et c'est pourquoi nous sommes finalement revenu sur notre script pour rattacher le commentaire à un compteur.
 
 ##### II.B.5. Fichiers obtenus à l'issu de cette étape <a id="IIB5"></a>
 
@@ -703,17 +708,14 @@ Malheureusement, à l'issue de la préparation du jeu de données de comptage, c
 Nous avons donc créé un deuxième paramètre, correspondant à l'emplacement, sur chacun de nos pc, du fichier dans notre dépôt local.<br>
 Ainsi, à l'ouverture du rapport, et sous réserve que notre branche locale soit à jour, il suffit de sélectionner le paramètre correspondant à notre chemin local pour actualiser le rapport.
 
-<div style="text-align:center; margin: 20px 0;">
-  <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/application_param1.png" alt="Application d'un paramètre au rapport" style="width:100%; display:block;">
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/application_param1.png" alt="Application d'un paramètre au rapport"  style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 15 — Application d'un paramètre au rapport
     </figcaption>
   </figure>
-</div>
-
-<div style="text-align:center; margin: 20px 0;">
-  <figure style="display:inline-block; width:100%; margin:0 1%;">
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
     <img src="images/application_param2.png" alt="Sélection du chemin utilisateur" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
       Figure 16 — Sélection du chemin utilisateur
@@ -738,9 +740,9 @@ Nous utilisons donc Power Query (*cf.* <a href="ann6">Annexe 6</a>) pour élmine
 Nous en profitons pour améliorer la convivialité des noms de colonnes qui avaient été abrégées et simplifiées pour être manipulable confortablement dans Python : l'objectif cette fois est que les noms de colonnes soient le plus explicites possible pour l'utlisateur final du rapport.<br><br>
 
 Envin, nous avons revu le contenu des champs nommant les sites de comptage et les comptages par leur adresse.<br>
-En effet, nous disposons parfois de plusieurs compteurs dans la même rue mais à des adresses différentes, par exemple nous avons un site au 44 avenue des Champs Elysées SE-NO et un autre au 33 avenue des Champs Elysées NO-SE.<br>
+En effet, nous disposons parfois de plusieurs compteurs dans la même rue mais à des adresses différentes, par exemple nous avons un site au *44 avenue des Champs Elysées SE-NO* et un autre au *33 avenue des Champs Elysées NO-SE*.<br>
 
-Si nous laissions les compteurs nommés de cette manière, alors nous aurions eu dans nos menus déroulants une liste triée par numéro de rue, ce qui aurait par exemple placés les 2 compteurs du 36 rue de Grenelle ENTRE nos 2 compteurs des Champs Elysées et cela aurait été peu confortable pour l'utilisateur du rapport Power BI.<br>
+Si nous laissions les compteurs nommés de cette manière, alors nous aurions eu dans nos menus déroulants une liste triée par numéro de rue, ce qui aurait par exemple placés les 2 compteurs du *36 rue de Grenelle* <u>entre</u> nos 2 compteurs des Champs Elysées et cela aurait été peu confortable pour l'utilisateur du rapport Power BI.<br>
 
 Pour résoudre ce souci, nous avons donc mis en place un renommage des adresses en prenant le contenu à droite de la première majuscule situé dans la chaîne de caractère, puis le numéro et le type de voie entre parenthèse. De nombreux compteurs étant situé sur des ponts, donc sans numéro, nous avons du traiter cette exception.
 
@@ -764,6 +766,84 @@ En discutant de nos expériences de cyclistes, nous avons décidé d'affiner ce 
 Enfin, afin de rendre ces calculs de scores intemédiaires, nous avons étabi un barême de classement en catégorie de chacune des notes et créé des colonne de tri de ces catégories (non visible de l'utilisateur de Power BI) pour que nos visuels soient cohérents.
 Les différentes transformations évoquées peuvent être consultées en <a href="#ann7">Annexe 7</a>.
 
+##### II.C.4. Corrections des anomalies. <a id="IIC4"></a>
+
+En préparant nos visualisations, nous avons détecté plusieurs anomalies (outliers) qui impactaient significativement notre analyse.
+
+##### II.C.4.1. Sites de comptage arrêtés <a id="IIC41"></a>
+
+Sur le site du **106 av Denfert Rochereau**, nous n'avions aucun comptage sur la période, nous avons donc exclu le compteur afin de ne pas fausser les moyennes.
+
+Sur le site du **24 bd Jourdan**, nous nous sommes aperçus que les données s'arrêtaient mi-octobre 2024 ce qui faisaient que le site avait un score de fréquentation extrêmemement bas et semblait devoir être priorisé alors qu'il s'agit en fait d'une désinstallation du compteur.<br>
+Nous avons donc choisi d'exclure ce site de comptage de nos données via la requête Power Query.
+
+##### II.C.4.2. Sites avec des valeurs aberrantes <a id="IIC42"></a>
+
+Le site du **147 avenue d'Italie** ressortait en site avec le maximum de fréquentation sauf que lorsque nous regardions la répartition de cette fréquentation sur l'année et les dépassements de seuils, celle-ci semplait se concentrer sur la première semaine d'août 2025 (du 30 juillet au 3 août) puis passaient à zéro jusqu'au 13 août inclus.<br><br>
+Après recherche, nous avons identifié que des travaux de voirie avait eu lieu, lié à la modification de l'éclairage et des accès de la station de métro.<br>
+Visiblement, les comptages réalisés (on dépassait les 20000 cyclistes/jour !), ne correspondait pas à des flux de cyclistes... d'autant qu'ils étaient tout à fait incohérent avec le trafic au 180 avenue d'Italie : si des cyclistes étaient passés en si grand nombre au 147, on aurait du en percevoir la trace au 180 et ce n'était pas le cas.<br><br>
+Plutôt que d'exclure ce site, nous avons donc décidé de corriger ses données en les interpolant sur la base du différentiel habituel entre la fréquentation du 147 et du 180 avenue d'Italie qui, tout le restant de l'année, présentait exactement le même profil.
+<br>Nous avons donc calculé un ratio de fréquentation entre ces 2 sites sur la période du mois de juin (car nous avions un jour de juillet dans nos données aberrantes) et appliqué ce ratio aux données du 180 avenue d'Italie pour interpoler nos fréquentations tout en conservant les variabilités horaires sur le site.<br>
+
+<div style="text-align:center; margin: 20px 0;">
+  <figure style="display:inline-block; width:100%; margin:0 1%;">
+    <img src="images/outlier147.png" alt="Juillet Août au 147 av Italie avant correction" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 17 — Juillet Août au 147 av Italie avant correction
+    </figcaption>
+  </figure>
+</div>
+
+<div style="text-align:center; margin: 20px 0;">
+  <figure style="display:inline-block; width:100%; margin:0 1%;">
+    <img src="images/147corrigé.png" alt="Juillet Août au 147 av Italie après correctionF" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 18 — Juillet Août au 147 av Italie après correction
+    </figcaption>
+  </figure>
+</div>
+
+Le site du **Quai d'Orsay** détenait, après traitement du 147 av d'Italie, le record d'affluence de cycliste en une heure, avec 3070 cycliste/heure.<br>
+Nous avons voulu en savoir plus sur cette valeur. Étrangement, il s'agit du dimanche 5 janvier 2025 à 15h, alors que ce site est le plus sensible aux conditions météorologiques ce qui semblait suspect.
+Les conditions météo étaient ce jour là n'était pas "agréables" mais juste "acceptables" (score météo de 58) avec un température "froide mais gérable"(mini 0,7°C, maxi 12,7°c, moy 11,0°C), une "pluie modérée" (2mm tombé en un peu plus de 4h) et un "vent tempétueux" (30km en moyenne avec des rafales à 70km/h)... un record d'affluence cet après-midi là était donc peu probable.
+De plus le site de comptage enregistre ce jour là un score de seulement 3 105 cycliste... soit seulement 35 de plus et des données enregistrée ce jour là uniquement à 15h et minuit, le 3070 étant d'ailleurs sur un seule compteur au lieu d'une répartition équitable sur les 2 comme les autres jours.<br>
+Cette valeur de 3070 est clairement une anomalie même si le total du jour semble être cohérent avec les 3 autres dimanches de janvier.<br>
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/orsay5janvier.png" alt="Données quai d'Orsay 5 janvier"  style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 19 — Données quai d'Orsay 5 janvier
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/outlier_orsay.png" alt="Cohérence journalière 5 janvier" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 20 — Quai d'Orsay : le 5 janvier est cohérent
+    </figcaption>
+  </figure>
+</div>
+
+Nous considérons donc qu'il doit s'agit d'un défaut d'enregistrement ou de transmission de la donnée (entièrement stockée sur un compteur à 15h et décidons de la répartir sur les 2 compteurs, suivant les mêmes proportions de répartition horaire que celle des 3 autres dimanches de janvier.)
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/focus_Orsay_corrigé.png" alt="Focus Orsay corrigé"  style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 21 — Focus quai d'Orsay corrigé
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/orsay5janviercorrigé.png" alt="Données quai d'Orsay 5 janvier corrigé" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 22 — Données corrigées quai d'Orsay 5 janvier
+    </figcaption>
+  </figure>
+</div>
+
+Il faut noter qu'il reste très certainement quelques autres outliers ou valeurs aberrantes à zéro.
+Cependant il est très difficile de les identifier et nous avons donc choisi d'ignorer ces valeurs lorsqu'elles ne nous gênaient pas.
+
 #### II.D. Préprocessing dans Power BI <a id="IID"></a>
 
 ##### II.D.1. Création des tables de date <a id="IID1"></a>
@@ -783,7 +863,7 @@ Les tables préparées ont fait l'objet de la modélisation en étoile ci-dessou
   <figure style="display:inline-block; width:100%; margin:0 1%;">
     <img src="images/etoile.png" alt="Modèle de donnée en étoile" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
-      Figure 17 — Modèle de donnée en étoile
+      Figure 23 — Modèle de donnée en étoile
     </figcaption>
   </figure>
 </div>
@@ -797,13 +877,14 @@ Nous aurions pu résoudre ce problème en transformant dans PowerQuery notre tab
 
 Nous avons créé 2 types de hiérarchies dans notre modèle sémantique :
 
-* d'une part des hiérarchies temporelles :
+* d'une part des **hiérarchies temporelles**:
   - avec une hiérarchie "analytique" pour prendre en compte une année 2024-2025 démarrant en septembre
   - avec une hiérarchie "année civile" pour prendre en compte la recherche éventuelle d'un indicateur correspondant par exemple au début de l'année 2025, la Mairie de Paris faisant habituellement ses études sur une plage de donnée annuelle<a href="bib201" class="ref">[2a]</a>.
 
-* d'autre part une hiérarchie géographique simplement basée sur le rattachement d'un ou plusieurs compteurs à un même identifiant de site de comptage.
-  Nous n'avons volontairement pas réalisé d'analyse basée sur l'adresse (on distingue ainsi les sites de comptage du 27 bd Diderot et du 28 bd Diderot) ou sur l'arrondissement.<br>
-  Cette dernière distinction pourrait cependant avoir un intérêt si la Mairie de Paris souhaitait établir par exemple une liste de priorité par arrondissement ou si le rapport était à destination de plusieurs décideurs, chacun dans leurs mairies d'arrondissement. Mais les points de comptages étant situés sur des axes structurants des déplacements parisiens et non sur le réseau secondaire, la compétence est plutôt centralisée et nous ne voyions pas l'intérêt de compliquer plus l'analyse.<br><br>
+* d'autre part une **hiérarchie géographique** simplement basée sur le rattachement d'un ou plusieurs compteurs à un même identifiant de site de comptage.
+  Nous n'avons volontairement pas réalisé d'analyse basée sur l'adresse (on distingue ainsi les sites de comptage du *27 bd Diderot* et du *28 bd Diderot*) ou sur l'arrondissement.<br><br>
+  Cette dernière distinction pourrait cependant avoir un intérêt si la Mairie de Paris souhaitait établir par exemple une liste de priorité par arrondissement ou si le rapport était à destination de plusieurs décideurs, chacun dans leurs mairies d'arrondissement.<br>
+  Mais les points de comptages étant situés sur des axes structurants des déplacements parisiens et non sur le réseau secondaire, la compétence est plutôt centralisée et nous ne voyions pas l'intérêt de compliquer plus l'analyse.<br><br>
   En cas de besoin, on pourrait néanmoins envisager la création d'une application séparée pour l'audiance de décideurs en mairie centrale de celle de l'audience en mairie d'arrondissement.
 
 ##### II.D.4. Création des mesures de sensibilité à la météo <a id="IID4"></a>
@@ -814,13 +895,13 @@ En explorant les résultats de trafic cycliste en fonction des résultats de la 
   <figure style="display:inline-block; width:45%; margin:0 1%;">
     <img src="images/ensemble_meteo.png" alt="Effet des conditions météo sur le trafic cycliste à Paris" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
-      Figure 18 — Effet des conditions météo sur le trafic cycliste à Paris
+      Figure 24 — Effet des conditions météo sur le trafic cycliste à Paris
     </figcaption>
   </figure>
   <figure style="display:inline-block; width:45%; margin:0 1%;">
     <img src="images/Diderot_meteo.png" alt="emplacement commentaires FUB 2025" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
-      Figure 19 — Effet des conditions météo sur le trafic cycliste au 28 bd Diderot
+      Figure 25 — Effet de la météo sur le trafic cycliste au 28 bd Diderot
     </figcaption>
   </figure>
 </div>
@@ -838,19 +919,20 @@ La différence entre cet effet observé et l'effet de référence a consistué n
 
 ##### II.D.5. Création des mesures de saturation des aménagements <a id="IID5"></a>
 
-Constatant des fréquentations exceptionnellement élevée pour certains compteurs, nous avons décidé de compléter notre rapport d'un indicateur de saturation des aménagements cyclables, afin de pouvoir alerter les aménageurs lorsque la fréquentation d'un site devient si élevée que cela peut générer des problèmes, alors mêmes que l'objectif du Plan Vélo 2021-2026 est bel et bien la croissance de la part modale du vélo.
+Constatant des fréquentations exceptionnellement élevée pour certains compteurs, nous avons décidé de compléter notre rapport d'un indicateur de saturation des aménagements cyclables, afin de pouvoir alerter les aménageurs lorsque la fréquentation d'un site devient si élevée que cela peut générer des problèmes, alors mêmes que l'objectif du Plan Vélo 2021-2026 est bel et bien la croissance de la part modale du vélo.<br>
 
-
-<a href="#ann9">Annexe 9</a>
+Le détail des mesures DAX créé est en <a href="#ann9">Annexe 9</a>.<br>
+Le principe a consisté à compter un créer un paramètre dynamique (géré par un slicer) pour fixer le seuil d'analyse (en cycliste/jour) puis de comptabiliser, sur le périmètre sélectionné le nombre de jour pour lequel le trafic total dépassait ce seuil.<br>
+Mais il fallait faire attention pour le cas où, sur la page d'accueil, nous avions plusieurs sites sélectionnés car nous aurions pu comptabiliser plusieurs fois le même jour.
+Nous avons donc fait une moyenne du nombre de jour de dépassement afin de se caler à la taille de la période (395 jours maximum) et au nombre de sites sélectionnés parmis nos 67 sites.
 
 ## III. Visualisations dans Power BI <a id="III"></a>
 
 ### III.A. Thème et organisations visuelles des pages
 
-Nous avons choisi de préparer notre rapport "comme si nous allions aller jusqu'à l'étape de publication".
-Dans ces conditions, nous avons donc prévu un cadre classique avec un bandeau latéral pour la navigation entre les pages de rapport et un bandeau horizontal pour le titre.
-
-Nous avons sélectionné un thème neutre en terme de couleur pour ne pas influencer nos utilisateurs dans leur perception des résultats affichés et avons choisi d'appliquer un jeu de couleur accessible à notre rapport.
+Nous avons choisi de préparer notre rapport "comme si nous allions aller jusqu'à l'étape de publication".<br>
+Dans ces conditions, nous avons donc prévu un cadre classique avec un bandeau latéral pour la navigation entre les pages de rapport et un bandeau horizontal pour le titre.<br>
+Nous avons sélectionné un thème neutre en terme de couleur pour ne pas influencer nos utilisateurs dans leur perception des résultats affichés et avons choisi d'appliquer un jeu de couleur accessible à notre rapport.<br>
 
 L'objectif du rapport est d'aider l'utilisateur du rapport à prendre des décisions nécessitant :
 * d'identifier des sites prioritaires,
@@ -866,68 +948,300 @@ Deux critères de filtre sont retenus :
 * les sites de comptage (avec la possibilité d'en sélectionner plusieurs, par exemple le 27 et le 28 bd Diderot ou tous les ponts) 
 * et la période calendaire, avec une premier niveau de sélection fixé sur la saison météorologique, ce qui nous a semblé le plus simple pour comparer facilement les moyennes été vs hiver par exemple.<br><br>
 
-Si les visuels de création des indicateurs de fréquentation nécessitaient simplement la création des mesures appropriées (moyenne, maximum). Il était néanmoins nécessaire de faire attention au fait que notre jeu étant restreint en terme de date, certaines dates de notre table de calendrier n'avaient pas de comptage : le calendrier va du 1er janvier 2024 au 31 décembre 2025 mais nous n'avons des données que sur la période du 1er septembre 2024 au 30 septembre 2025. Il convenait donc d'être prudent dans le calcul de nos mesures, notamment de fréquentation.<br>
-
-Carte de situation des compteurs
-
-Intégration du visuel Python de nuage de mot
-<a href="#bib101" class="ref">[6a]</a>
-<a href="#ann10">Annexe 10</a>
-
-Ceci nous fourni les éléments nécessaire à la réalisation de notre page, organisée "en Z": nos indicateurs de fréquentation en haut à gauche, puis ceux de saturation, à droite une carte de Paris avec les avis des cyclistes en survol. En partie basse, une liste des sites les plus sensibles à la météo et à droite la liste des sites les plus fréquentés.
+Nous avons essayé d'organiser cette page "en Z": nos indicateurs de fréquentation en haut à gauche, puis ceux de saturation au centre, à droite une carte de Paris avec les avis des cyclistes en survol. En partie basse, une liste des sites les plus sensibles à la météo puis à droite la liste des sites les plus fréquentés.
 
 <div style="text-align:center; margin: 20px 0;">
   <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/page1.gif" alt="Page d'accueil du rapport Power Bi" style="width:100%; display:block;">
+    <img src="images/page1bartet.png" alt="Page d'accueil du rapport Power Bi" style="width:100%; display:block;">
     <figcaption style="font-size:0.66em; margin-top:6px;">
-      Figure 20 — Page d'accueil du rapport Power BI
+      Figure 26 — Page d'accueil du rapport Power BI
     </figcaption>
   </figure>
 </div>
 
-### III.C. La page de Focus Site
+Sur la carte de Paris, nous avons opté pour un visuel de map simple car nous ne disposions pas d'un compte Power BI Service pour utiliser le visuel Azure Map (qui nous aurait permis d'affecter une couleur à chaque compteur en fonction du dépassement ou non du seuil d'analyse proposé sur la page).<br>
+Nous nous sommes donc contenté de visualiser les sites de comptage (la maille du compteur n'apportant rien car la plupart du temps, nous avons 1 ou 2 compteurs par site et il s'agit juste d'un effet de direction) et nous avons choisi de représenter la taille des bulles en fonction de la fréquentation totale des sites.<br>
 
-Ayant constaté que la Mairie de Paris suit un indicateur au seuil de 3000 cyclistes/jour<a href="bib201" class="ref">[2a]</a>, nous sommes resté sur un indicateur journalier pour la visualisation de la saturation au cours de l'année avec un bandeau horizontal permettant d'un simple glissement de repérer les fréquences de dépassement des seuils.<br>
-Deux seuils ont été tracés sur le graphe :
-* un premier seuil à 1 500 cyclistes/jour correspond aux trafic maximum souhaité sur une bande cyclable non protégé suivant les recommandations du Cerema <a href="bib301" class="ref">[3a]</a>.
-* un second seuil à 3 000 cyclistes/jour correspond à un seuil habituellement tolérable sur des pistes cyclables de taille confortable type "haut niveau de service" telle qu'on peut les trouver dans les aménagements de type vélopolitain <a href="bib302" class="ref">[3b]</a><a href="bib303" class="ref">[3c]</a><a href="bib401" class="ref">[4a]</a>.
-Il faut noter qu'en l'absence de liaison avec lun jeu de données des aménagements cyclables, nous n'avons pas pu déterminer dynamiquement quel seuil était le plus adapté à chaque site mais nous considérons que les aménageurs connaissent leurs sites et sinon, un simple clic dans la carte permet d'accéder à une photo sommaire de l'emplacement pour se le remettre en tête.
-
-<div style="text-align:center; margin: 20px 0;">
-  <figure style="display:inline-block; width:100%; margin:0 1%;">
-    <img src="images/sebastopol9000.png" alt="Page Focus site rapport Power Bi" style="width:100%; display:block;">
-    <figcaption style="font-size:0.66em; margin-top:6px;">
-      Figure 20 — Page Focus site du rapport Power BI
-    </figcaption>
-  </figure>
+<div style="display: table; width: 100%; margin-bottom: 1em;">
+  <div style="display: table-cell; width: 45%; vertical-align: top;">
+    <figure style="margin:0;">
+        <img src="images/page1quaipont.png" alt="Page d'accueil filtrée sur les quais et ponts" style="width:100%;">
+        <figcaption>
+         Figure 27 — Page d'accueil filtrée sur les quais et ponts
+        </figcaption>
+    </figure>
+    </div>
+    <div style="display: table-cell; width: 55%; padding-left: 12px; vertical-align: top;">
+    Le filtre de site permettant de sélectionner plusieurs compteurs, il est possible d'étudier par exemple une série de point de comptage présentant les mêmes caractéristiques, comme ci-contre les sites situés sur des ponts ou sur des quai (Seine, Oise ou Marne).
+    </div>
 </div>
 
-Mais si le cycliste parisien est relativement noctambule, nous avons vu dans nos explorations que des pics horaires sont bien visibles, tant en semaine que nous le week-end et nous compléterons donc nos visualisations d'un indicateur de flux maximum horaire. ainsi que d'un histogramme permettant de visualiser les pics maximums par rapport à un seuil horaire maximal correspondant.
+Au survol, afin de donner un accès rapide dès la page d'accueil aux avis des cyclistes, nous avons mis un nuage de mot correspondant au corpus d'avis des cyclistes donnés dans le baromètre FUB et localisé à l'intérieur du rayon de proximité identifié, via la création d'une page de tooltip.<br>
+Pour intégrer ce visuel Python personnalisé, nous avons utilisé le module Py de Power BI. L'aide de microsoft nous a aidé à comprendre son utilisation <a href="#bib101" class="ref">[6a]</a>.<br>
+Mais il restait quelques points nécessitant l'adaptation du code testé en phase de pré-processing.<br>
 
-<div style="display: table; width: 100%;">
+<div style="display: table; width: 100%; margin-bottom: 1em;">
   <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
-  Bien que la journée dure 24h, il est généralement admis par les aménageurs qu'un seuil de 1500 cyclistes/jour est à peu près équivalent à un seuil de 125 cyclistes/heure (250 cyclistes/heure pour le seuil à 3000 cyclistes/jour) : en effet, ce qui nous intéresse c'est d'identifier les dépassements de seuil et non de faire des moyennes précises, hors la majeure partie du trafic cycliste a lieu sur un une douzaine d'heure par jour.
-  Nous traçons donc notre constantes sur ces bases.
+    En effet, en restreignant les avis aux seuls présents dans la zone de proximité identifié, nous avions éliminé près de 90% des avis et cela nous laissait 1 site (face au 25 quai de l'Oise) qui se retrouvait sans aucun avis et pouvait donc générer une erreur.<br>
+    De même, d'autres sites avait un corpus d'un seul commentaire qui là encore pouvait tomber en erreur.<br>
+    Nous avons donc du ajouter des conditions à notre code pour éviter les bugs.
   </div>
   <div style="display: table-cell; width: 45%; vertical-align: top;">
     <figure style="margin:0;">
-        <img src="images/focus_Diderot_horaire.png" alt="Seuils de fréquentations horaire" style="width:100%;">
+        <img src="images/page1-25quaioise.png" alt="Seuils de fréquentations horaire" style="width:100%;">
         <figcaption>
-         Figure 21 — Seuils de fréquentations horaire
+         Figure 28 — Cas du site n'ayant pas d'avis à moins de 125m
         </figcaption>
     </figure>
    </div>
 </div>
 
+Enfin, en testant le nuage de mot généré, nous nous sommes aperçus que des mots accentués réapparaissaient alors que notre algorithme était censé les éliminer : après recherche, cela provenait du pipeline de l'algorithme, qui réappliquait sa propre méthode de tokénisation. Nous avons donc ajusté notre visuel en empêchant `TfidfVectorizer`de refaire son propre découpage et en revoyant l'ordre d'application du nettoyage, notamment de la suppression d'accent. Ceci nous a permis d'améliorer la cohérence des nuages de mots générés, comme on peut le voir dans l'exemple ci-dessous :
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/sebastopolavant.png" alt="Nuage initial pour Sébastopol" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 29 — Nuage initialement créé pour le 73 bd de Sébastopol
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/sebastopolaprès.png" alt="Nuage corrigé pour Sébastopol" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 30 — Nuage après correction pour le 73 bd de Sébastopol
+    </figcaption>
+  </figure>
+</div>
+
+Le script final du visuel Python pour la page "TT_NuageDeMot"est en <a href="#ann10">Annexe 10</a>.
+
+### III.C. La page de Focus Site
+
+Nous retrouvons sur cette page le nuage de mot correspondant au site sélectionné
+Ayant constaté que la Mairie de Paris suit un indicateur au seuil de 3000 cyclistes/jour<a href="bib201" class="ref">[2a]</a>, nous sommes resté sur un indicateur journalier pour la visualisation de la saturation au cours de l'année avec un bandeau horizontal permettant d'un simple glissement de repérer les fréquences de dépassement des seuils.<br><br>
+Deux seuils ont été tracés sur le graphe :
+* un premier seuil à 1 500 cyclistes/jour correspond aux trafic maximum souhaité sur une bande cyclable non protégé suivant les recommandations du Cerema <a href="bib301" class="ref">[3a]</a>.
+* un second seuil à 3 000 cyclistes/jour correspond à un seuil habituellement tolérable sur des pistes cyclables de taille confortable type "haut niveau de service" telle qu'on peut les trouver dans les aménagements de type vélopolitain <a href="bib302" class="ref">[3b]</a><a href="bib303" class="ref">[3c]</a><a href="bib401" class="ref">[4a]</a>.<br>
+_Il faut noter qu'en l'absence de liaison avec un jeu de données des aménagements cyclables, nous n'avons pas pu déterminer dynamiquement quel seuil était le plus adapté à chaque site mais nous considérons que les aménageurs connaissent leurs sites et sinon, un simple clic dans la carte permet d'accéder à une photo sommaire de l'emplacement pour se le remettre en tête._
+
+<div style="text-align:center; margin: 20px 0;">
+  <figure style="display:inline-block; width:100%; margin:0 1%;">
+    <img src="images/sebastopol9000.png" alt="Page Focus site rapport Power Bi" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 31 — Page Focus site du rapport Power BI
+    </figcaption>
+  </figure>
+</div>
+
+Mais si le cycliste parisien est relativement noctambule, nous avons vu dans nos explorations que des pics horaires sont bien visibles, tant en semaine que les week-end et nous compléterons donc nos visualisations d'un indicateur de flux maximum horaire ainsi que d'un histogramme permettant de visualiser les pics maximums par rapport à un seuil horaire maximal correspondant.
+
+<div style="display: table; width: 100%;">
+  <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
+  Bien que la journée dure 24h, il est généralement admis par les aménageurs qu'un seuil de 1500 cyclistes/jour est à peu près équivalent à un seuil de 125 cyclistes/heure (250 cyclistes/heure pour le seuil à 3000 cyclistes/jour) : en effet, ce qui nous intéresse c'est d'identifier les dépassements de seuil et non de faire des moyennes précises, hors la majeure partie du trafic cycliste a lieu sur une douzaine d'heure par jour.
+  Nous traçons donc deux lignes de constantes sur ces bases.
+  </div>
+  <div style="display: table-cell; width: 45%; vertical-align: top;">
+    <figure style="margin:0;">
+        <img src="images/focus_Masséna_horaire.png" alt="Seuils de fréquentations horaire" style="width:100%;">
+        <figcaption>
+         Figure 32 — Seuils de fréquentations horaire
+        </figcaption>
+    </figure>
+   </div>
+</div>
+
+Enfin, la page Focus Site permet de vérifier le comportement du site dans différentes conditions météorologiques, afin d'identifier le critère le plus sensible du site en affichant non seulement la sensibilité globale à la météo, calculée sur la base du différentiel de fréquentation selon le score de cyclabilité en fonction de la météo globale (score météo sur 100) mais également ses différentes composantes que sont la sensibilité aux effets de la température, du vent ou de la pluviométrie.
+
+### III.D. Pages complémentaires de sensibilité météo
+
+Pour notre exploration des données météo, nous avons utilisé Power BI pour visualiser les différents résultats obtenus pour notre modélisation et afficher les résultats des calculs de sensibililité de manière plus fine.
+
+#### III.D.1. Page "Météo et Mobilité"
+
+<div style="display: table; width: 100%;">
+  <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
+  Cette page permet de visualiser les effets des différents paramètres sur un ou plusieurs site de comptage.<br>
+  On observe une corrélation globale positive entre la fréquentation et les conditions météo, quel que soit le site de comptage sélectionné ce qui vient conforter notre modèlisation, alors même que cette corrélation était beaucoup moins évidents pour la notation, pluie, vent et température prise indépendamment.<br>
+  L'analyse de la Mairie de Paris quant à la stagnation (voire baisse sur certains points de comptage) de fréquentation de 2024 due à un effet de la pluviométrie exceptionnelle de cette année<a href="#bib201" class="ref">[2a]</a> nous semble donc être un raccourci un peu rapide.
+  </div>
+  <div style="display: table-cell; width: 45%; vertical-align: top;">
+    <figure style="margin:0;">
+        <img src="images/quai_pont_global.png" alt="Effet de la météo sur la fréquentation des quais et ponts" style="width:100%;">
+        <figcaption>
+         Figure 33 — Effet de la météo sur la fréquentation des quais et ponts
+        </figcaption>
+    </figure>
+   </div>
+</div>
+
+</div>
+<div style="text-align:center; margin: 20px 0;"> 
+  <figure style="display:inline-block; width:30%; margin:0 1%;">
+    <img src="images/quai_pont_pluie.png" alt="dont effet pluie" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 34 — dont effet pluie
+    </figcaption>
+  </figure> 
+  <figure style="display:inline-block; width:30%; margin:0 1%;">
+    <img src="images/quai_pont_vent.png" alt="dont effet vent" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 35 — dont effet vent
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:30%; margin:0 1%;">
+    <img src="images/quai_pont_temp.png" alt="dont effet température" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 36 — dont effet température
+    </figcaption>
+  </figure>
+</div>
+
+Il faut noter que pour cet écran, nous avons du avoir recours à une navigation par signet. Cela a des désavantages (notamment la perte de la sélection sur le menu déroulant des sites) mais il s'agissait de la seule possibilité que nous avons trouvé pour pouvoir afficher de manière dynamique les intitulés des catégories représentant le niveau de cyclabilité des conditions météorologiques (par exemple le niveau idéal pour le vent est "calme", "doux" pour la température et "sec" pour la pluviométrie).<br>
+
+#### III.D.2. Page "Sensibilité Météo"
+
+Afin d'identifier les sites les plus sensibles à la météo, nous trouvions nécessaire de pouvoir regarder, pour un site donné, à quelle composante il était le plus sensible.
+Mais nous ne voulions pas surcharger la page d'accueil avec une sélection des différentes composantes de sensibilité.<br>
+Nous avons donc repris le diagramme en barre classant les sites par sensibilité sur cette page et l'avons complété d'un tableau permettant de comparer chacun des sites sélectionné à la référence correspondant à notre moyenne de site parisien.<br><br>
+
+Cet écran nous permet donc de détailler les composantes de sensibilité.
+Il faut noter que nous avons conservé le code couleur sur le graphique de la sensibilité à la météo globale. Ainsi sur le visuel ci-dessous des sensibiltité globale et à la pluie des ponts et quais de Paris, nous pouvons voir que si le Quai des Tuileries voit sa fréquentation baisser significativement les jours de pluie, les effet de la météo en général sur ce quai sont plutôt neutre (la barre est bleue sur la sensibiltié à la pluie mais l'effet global de +3,49pt n'est pas assez significatif pour que le site apparaisse dans le graphe global).
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/quai_pont_sensi.png" alt="Sensibilité des ponts et quais à la météo" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 37 — Sensibilité des ponts et quais à la météo
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/quai_pont_sensi_pluie.png" alt="Sensibilité des ponts et quais à la pluie" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 38 — Sensibilité des ponts et quais à la pluie
+    </figcaption>
+  </figure>
+</div>
+
+La matrice présente sur cette page nous permet au passage de regarder si un compteur (et donc une direction de circulation) est plus sensible qu'un autre à ces paramètres, on voit ainsi dans l'exemple ci-dessus que la direction SO->NE est plus impactée par la pluie que le quai d'Issy que le sens inverse.<br>
+En effet, la sensibiltié à la météo d'un site peut être due à son aménagement précis : un sens de l'aménagement peut être ensoleillé quand l'autre peut être toujours à l'ombre, l'un peut être abrité du vent par des plantations et l'autres plus exposé, etc.<br>
+
 <hr class="page-break">
 
 ## IV. Analyse des données <a id="IV"></a>
 
+Pour finaliser notre projet, nous nous sommes mis dans la peau des décideurs pour analyser les données avec notre rapport.
+Dans un premier temps, nous avons identifié graçe à la première page plusieurs points.<br><br>
+
+<div style="display: table; width: 100%;">
+  <div style="display: table-cell; width: 55%; vertical-align: top; padding-right: 12px;">
+D'une manière générale, la fréquentation journalière poursuit sa croissance : sur le printemps et l'été 2025, on atteint ainsi une fréquentation moyenne de 191K cyclistes sur les compteurs en activité, avec en moyenne 88 cyclistes/heure.<br>
+Dans 67% des jours de l’année et même 77% des jours au printemps, le seuil de 1500 cyclistes/jour à partir duquel le Cerema recommande un aménagement séparatif est dépassé.
+Si on place le curseur à 3000, limite acceptable pour un aménagement de type “piste bidirectionnelle classique”, il reste encore 169 jours de dépassement.<br>
+  </div>
+  <div style="display: table-cell; width: 45%; vertical-align: top;">
+    <figure style="margin:0;">
+        <img src="images/printemps-été-2025.png" alt="Trafic cycliste sur la période printemps-été 2025" style="width:100%;">
+        <figcaption>
+         Figure 39 — Trafic cycliste sur la période printemps-été 2025
+        </figcaption>
+    </figure>
+   </div>
+</div>
+Cela montre la nécessité de renforcer les instrastructures, notamment sur les aménagements à haut niveau de service.<br><br>
+Sur cette période récente, le site du <b>quai d'Orsay</b> se détache nettement des autres sites puisqu'il s'agit de l'unique endroit impacté défavorablement (-10,77pt ) par les conditions météorologiques, qui furent pourtant clémentes (moins pluvieuses qu'en 2024 et un nombre d'épisodes de chaleur relativement limité.)<br>
+Ce site du Quai d'Orsay était déjà identifié comme un site "à surveiller" car depuis 2023, c'est le site dont la fréquentation a le plus progressé : il s'agissait du 5ème site en terme de fréquentation en 2023, du 3ème en 2024<a href="#bib201" class="ref">[2a]</a> et c'est le second sur notre période de 13 mois.<br>
+La piste cyclable (type biderectionnelle à haut niveau de service) a été construite en 2019 sur ce quai et l'aménagemetn global (y compris plantation) n'a pas fait l'objet de modifications récentes, l'aspect pénalisant de la météo sur cet itinéraire n'empêche donc pas la fréquentation d'augmenter mais il doit interroger sur les possibiltiés d'amélioration.<br>
+Sur cet axe très large et non protégé par des bâtiments ou des plantations de hauteur moyenne (il n'y a que des arbres de haute tige), le cycliste doit en effet ressentir les effets combinés de l'humidité (sensibilité de -2,17pt) , du vent (sensibilité de -0,84pt) mais surtout de la température (-10,95pt comme on le voit sur le graphe ci-dessous) de manière plus importante que sur d'autre voies.
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/focus_Orsay.png" alt="Focus sur le quai d'Orsay"style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 40 — Focus sur le quai d'Orsay
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/quai_pont_sensi_temp.png" alt="Sensibilité des ponts et quais à la pluie" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 41 — Sensibilité des ponts et quais à la température
+    </figcaption>
+  </figure>
+</div>
+
+A l'inverse, un second site se détache nettement sur notre page d'accueil : le **boulevard Diderot** avec un site qui semble étrangement être plus fréquentés les jours de mauvaise météo que les autres sites parisiens, avec une sensibilité positive  à +75pt.<br>
+En fait, lorsqu'on regarde l'effet de la météo sur ce site, on n'observe tout simplement pas d'impact de la météo : quel que soit cette dernière, les points sont tous situés autour d'une moyenne de 37 cyclistes par heure... et quand on regardre attentivement la répartition des fréquentations journalières sur le graphique du bas, on s'aperçoit que sur ce site, les effets de week-ends, jours fériés et vacances sont particulièrement marqués avec une baisse de la fréquentation qui est surtout corrélée au calendrier.<br>
+Ceci s'explique en fait assez simplement par l'emplacement de ce site de comptage : à proximité immédiate de la gare de Lyon, il est surtout impacté par le trafic cycliste pendulaire : une très grande station Vélib s'y trouve et ce n'est donc pas un axe de transit mais un point de départ ou de destination pour les personnes pratiquant le vélotaf.<br>
+En été (et même dès le mois de juin), on y observe une baisse notable de la fréquentation, de même que les week-ends, le trafic au départ et à destination de la gare étant alors plutôt pour des voyages "de loisirs" et le besoin de transport de bagages explicite vraisemblablement le moindre usage du vélo ces jours là.
+Nous pourrions confirmer cette hypohtèse en croisant nos données avec celle de la fréquentation des vélib qui décroit en parallèle.
+La moindre sensibilité à la météo s'explique donc par l'aspect contraint du trafic pendulaire.<br>
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/page1diderot.png" alt="Page d'accueil Diderot" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 42 — Page d'accueil
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/Diderot_meteo.png" alt="Effet de la météo sur le 28 bd Diderot" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 43 — Effet de la météo sur le 28 bd Diderot
+    </figcaption>
+  </figure>
+</div>
+
+On peut par ailleurs remarquer que sur ce boulevard Diderot, des aménagement seraient nécessaires.<br>
+On y observe un flux moyen d’environ 1 700 cyclistes par jour, avec des pics à 235 par heure.<br>
+Mais au-delà des chiffres, ce qui pose problème ici, c’est l’environnement : comme on peut voir, beaucoup de voitures en dépose-minute et de stationnements sur la bande cyclable, ce qui crée de forts enjeux de sécurité pour les cyclistes (risque d'emportiérage, d'écarts impromptus, de collision...).<br>
+Le seuil d’analyse fixé à 1 500 passages/jour est dépassé près de 70 % du temps au dessus duquel le Cerama recommande un aménagement séparatif, la tension est quasi permanente sur cet axe.<br>
+Et les commentaires des cyclistes vont dans ce sens, le nuage de mots parlant de lui-même : "priorité", "passer", "taxi", "bus" sont les indices d’une cohabitation difficile entre automobilistes et cyclistes.<br>
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/focus_Diderot_horaire.png" alt="Focus sur le 28 bd Diderot"style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 44 — Focus sur le 28 bd Diderot
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/quai_pont_sensi_temp.png" alt="Dépose-minute sur la bande du bd Diderot" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 45 — Dépose-minute sur la bande du bd Diderot
+    </figcaption>
+  </figure>
+</div>
+
+Pour résoudre ces difficultés, on peut voir sur la photo des plots souples de séparation, qui avaient été installés en 2022, et ce bien que ce type d'installation empêche les cyclistes de se doubler sur une bande ce qui peut être problématique lorsque comme ici on arrive au stade de saturation de l'aménagement. Mais ces plots souples ont rapidement été détruits par les véhicules (abîmés en 2023, une partie a disparu sur les photos de 2024) et ne protègent plus la bande cyclable qui est par ailleurs interrompu par la présence d'arrêts de bus ce qui gêne les cyclistes qui s'en plaignent dans leurs commentaires.<br>
+Une solution plus pérenne, sécurisée et continue d'aménagement pour faciliter la desserte de la gere de Lyon paraît donc nécessaire ici.<br><br>
+
+Pour terminer, si nous regardons notre page d'accueil, nous voyons que le **73 bd de Sébastopol** reste très attractif.<br>
+Cependant, si sa fréquentation est exceptionnellement élevée, la petite baisse constatée entre 2023 et 2024 (14 800 cyclistes/jour<a href="#bib201" class="ref">[2a]</a>) se poursuit encore avec une moyenne autour de 14200 cyclistes/jour. Le site reste titulaire de record de fréquentation horaire avec 1615 cycliste/heure le jeudi 18 septembre 2025 à 18h (heure de sortie des bureaux donc), ce jour là le score météo était de 99/100, nous sommes donc sur une donnée parfaitement cohérente (contrairement à ce que nous avions avant <a href="IIC42">traitement des outliers</a> ).<br><br>
+Ceci est à mettre en relation avec les avis, majoritairement négatifs remontant de ce site dont on voit sur l'ensemble des indicateurs qu'il est totalement à saturation.<br>
+Sur la photo on constate qu'il s'agit certes d'une piste séparée mais cyclable mais dont la qualité n'est pas suffisante pour un tel flux de cycliste : aménagée en 2019 à une époque où la part modale du vélo à Paris est deux fois moindre qu'aujourd'hui, son étroitesse est mise en avant par les cyclistes. On retrouve ainsi les mots "trafic","nombre","beaucoup","monde","petit","étroit","falloir","adapter" mettent en évidence cette saturation.<br>
+En parallèle, les mots "circulation","respecter","croisement","dangereux","priorité","carrefour","feu","priorite" indiquent la nécessité de revoir l'aménagement qui a les défauts d'une piste bidirectionnelle, notamment pour les changements de direction et la gestion des priorité dans les carrefours avec les motorisés.<br>
+
+<div style="text-align:center; margin: 20px 0;">  
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/pistesebastopol.png" alt="Aménagement de la piste 73 bd de Sébastopol"style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 46 — Aménagement de la piste 73 bd de Sébastopol
+    </figcaption>
+  </figure>
+  <figure style="display:inline-block; width:45%; margin:0 1%;">
+    <img src="images/sebastopol9000.png" alt="Focus sur le 73 bd de Sébastopol" style="width:100%; display:block;">
+    <figcaption style="font-size:0.66em; margin-top:6px;">
+      Figure 47 — Saturation de la piste 73 bd de Sébastopol
+    </figcaption>
+  </figure>
+</div>
+
 <hr class="page-break">
 
-## Conclusion
+## Conclusion et bilan
 
-### Bilan
+Pour conclure sur ce projet, je dois dire qu'il m'a beaucoup intéressé car j'ai pu mettre en pratique les éléments vu en cours de manière concrète, sur un sujet pour lequel j'avais de l'appétence.<br>
+Il faut bien poser le crayon mais j'aurai aimé passé plus de temps à fouiller les données et nous avons identifié de nombreuses perspectives d'évolution de ces données que j'aurai aimé pouvoir continuer à suivre... si elles avaient concernée la métropole de Lyon où je milite pour l'amélioration des aménagements cyclables.<br>
+Mais tout n'est pas perdu et le script d'analyse des données du baromètre est d'ores et déjà en cours de mise en place pour fournir des arguments à notre plaidoyer en vu des élections municipales et métropolitaines du printemps prochain !<br><br>
 
 ### Perspectives :
 
@@ -984,7 +1298,8 @@ Un module de formation sur les bonnes pratiques d’utilisation d’un EDI comme
 Il a fallu rechercher une bibliothèque python adaptée (celle vu en cours, wordnet étant plutôt anglophone) et qui puisse prendre en compte les formes complexes du français.<br>
 La transformation du script testé sur l’ensemble du jeu en un script intégrable dans Power BI et fonctionnant avec des clusters d’avis de taille nettement plus réduite pour chaque compteur a ensuite nécessité des ajustements  pour ne pas avoir d’erreur lorsque le cluster était petit.<br>
 D'autre part, le rendu de l'affichage du nuage de mot dans Power BI était légèrement différent application arbitraire de marge en haut et en base) que celui obtenu dans Python et j'ai donc du adapter ces paramètres.<br>
-Enfin (et surtout), pour des raisons de performance (temps de chargement qui était trop long), j'ai également du mettre directement dans le script python la définition de la totalité du dictionnaire de mots vides à utiliser au lieu de charger dynamiquement les mots vides "classiques" et de me contenter d'y ajouter les mots spécifiques à mon contexte.<br><br>
+Pour des raisons de performance (temps de chargement qui était trop long), j'ai également du mettre directement dans le script python la définition de la totalité du dictionnaire de mots vides à utiliser au lieu de charger dynamiquement les mots vides "classiques" et de me contenter d'y ajouter les mots spécifiques à mon contexte.<br>
+Enfin, j'ai passé pas mal de temps à essayer de comprendre les résultats que j'obtenais parfois, notamment la réapparition de mots accentués quand j'avais appliqué une suppression des accents un peu avant... le fait d'entreprendre cette analyse avant d'avoir entamé le cours sur le fonctionnement des pipelines m'a probablement fait perdre du temps mais m'a également convaincu de suivre ce module.<br><br>
 
 <hr class="page-break">
 
@@ -2931,55 +3246,75 @@ RETURN
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import re
 import nltk 
 from nltk.corpus import stopwords
+import unicodedata 
+from sklearn.feature_extraction.text import TfidfVectorizer # pour application d'un algorithme TF_IDF
+from wordcloud import WordCloud  # pour les nuages de mots
 
 # pour éviter d'importer des données externes dans Power BI, on importe la liste stop_word directement dans le script
 stop_words=['ces', 'qu', 'ayons', 's', 'vraiment', 'seras', 'ait', 'fûmes', 'eûmes', 'auront', 'lui', 'l', 'on', 'fus', 'le', 'serai', 'étant', 'son', 'et', 'sois', 'étaient', 'eue', 'cette', 'aurait', 'quand', 'qui', 'fusses', 'fut', 'ne', 'auraient', 'fût', 'aie', 'mes', 'eusses', 'eûtes', 'tes', 'aies', 'avait', 'fussiez', 'vers', 'était', 'eu', 'avoir', 'avec', 'que', 't', 'aurions', 'seront', 'soient', 'pour', 'n', 'avaient', 'même', 'étants', 'pas', 'c', 'il', 'sur', 'sera', 'au', 'étantes', 'serait', 'fusse', 'serais', 'ayante', 'étées', 'furent', 'rue', 'cycliste', 'soyez', 'fûtes', 'd', 'auras', 'a', 'sont', 'étais', 'eût', 'du', 'me', 'être', 'avez', 'mais', 'aura', 'leur', 'moi', 'été', 'se', 'ayant', 'une', 'vous', 'ayants', 'tu', 'étés', 'suis', 'bd', 'la', 'es', 'aient', 'des', 'ta', 'aux', 'auriez', 'aurais', 'boulevard', 'j', 'vélo', 'ai', 'fussions', 'en', 'nos', 'ses', 'seraient', 'ils', 'eux', 'm', 'ont', 'nous', 'sommes', 'ce', 'je', 'serez', 'te', 'fussent', 'étions', 'mon', 'à', 'avions', 'toi', 'eussent', 'seriez', 'ayantes', 'serons', "c'est", 'cyclable', 'votre', 'eues', 'aurai', 'eussiez', 'ou', 'notre', 'est', 'ayez', 'avenue', 'aurez', 'par', 'êtes', 'y', 'eus', 'de', 'sa', 'étiez', 'étante', 'avais', 'eut', 'aviez', 'route', 'elle', 'étée', 'un', 'ton', 'les', 'vos', 'eurent', 'eusse', 'eussions', 'as', 'dans', 'aurons', 'avons', 'soyons', 'serions', 'soit', 'ma','piste']
 
-corpus=dataset.loc[dataset.statut_proximite == "retenu","commentaire"].astype(str).tolist()
+# suppression des accents pour foncitonnement correct de l'algorithme TF_IDF
+def supprime_accent(texte : str ) -> str :
+    texte = ''.join(
+        c for c in unicodedata.normalize('NFD', texte)
+        if unicodedata.category(c) != 'Mn'
+    )
+    return texte
 
-from sklearn.feature_extraction.text import TfidfVectorizer # pour application d'un algorithme TF_IDF
+# on crée une fonction de nettoyage que l'on va imposer à TfidfVectorizer pour l'empêcher d'utiliser son propre token_patterne
+def nettoie_texte(texte):
+    texte = supprime_accent(texte.lower())
+    mots = re.findall(r'\b[a-z]+\b', texte)  # sans lettres accentuées
+    mots = [m for m in mots if m not in stop_words]
+    return " ".join(mots)
 
 def creer_tfidf_dict(corpus):
     """
-    Calcule les poids TF-IDF pour un corpus (liste de textes) et renvoie un dictionnaire {mot: score}.
+    Nettoie et calcule les poids TF-IDF pour un corpus (liste de textes) et renvoie un dictionnaire {mot: score}.
     Prêt à être utilisé avec WordCloud.generate_from_frequencies().
 
     corpus : list[str]  Liste de commentaires (déjà nettoyés / lemmatisés / sans accent).
     """
-    corpus_clean = [
-        " ".join([mot for mot in texte.split() if mot.lower() not in stop_words])
-        for texte in corpus
-        if isinstance(texte, str) and texte.strip()
-    ]
+    corpus_clean = [nettoie_texte(t) for t in corpus if isinstance(t, str) and t.strip()]
     if not corpus_clean:
-        return {}  # sécurité : évite les erreurs sur corpus vide
+        return {} # sécurité : évite les erreurs sur corpus vide
     
     # Adapter min_df et max_df dans les cas de petits corpus
     n_docs = len(corpus_clean)
-    min_df_value = 2 if n_docs >= 2 else 1  # si moins de 2 documents, mettre min_df=1
-    max_df_value = 0.9 if n_docs > 1 else 1.0
+    if n_docs <=2:
+        min_df_value = 1    # si moins de 2 documents, mettre min_df=1
+        max_df_value = 1.0
+    else:
+        min_df_value = 2   
+        max_df_value = 0.9
 
     vectorizer = TfidfVectorizer(
         max_df=max_df_value,             # ignore les mots trop fréquents
         min_df=min_df_value,    # ignore les mots trop rares... sauf si petit corpus
         norm='l2',              # normalisation standard
+        tokenizer=lambda x: x.split(),  # on empêche le tokenizer interne
+        preprocessor=lambda x: x,       # on empêche la re-préparation du texte
+        token_pattern=None              # obligatoire si on définit un tokenizer
     )   
     
     tfidf_matrix = vectorizer.fit_transform(corpus_clean)
     tfidf_scores = np.asarray(tfidf_matrix.mean(axis=0)).ravel()  # on calcule le score moyen de chaque mot
-    tfidf_dict = dict(zip(vectorizer.get_feature_names_out(), tfidf_scores))  # on récupère ce score dans un dictionnaire qui va nous servir pour le nuage
-    return tfidf_dict
+    return dict(zip(vectorizer.get_feature_names_out(), tfidf_scores))  # on récupère ce score dans un dictionnaire qui va nous servir pour le nuage
 
-# Compter les occurrences de chaque catégorie
+# on va adapter la couleur à chaque catégorie
+    # Compter les occurrences de chaque catégorie
 nb_rouge = dataset.loc[dataset.categorie == "rouge"].shape[0]
 nb_vert = dataset.loc[dataset.categorie == "vert"].shape[0]
-
-# Choisir la colormap selon la condition
+    # Choisir la colormap selon la catégorie prédominante
 colormap_choice = "inferno" if nb_rouge > nb_vert else "viridis"
 
-from wordcloud import WordCloud  # pour les nuages de mots
+# sélection du corpus de commentaire en ne prenant que les commentaire lemmatisé dans le rayon de proximité défini
+corpus = [supprime_accent(str(t).lower()) for t in dataset.loc[dataset.statut_proximite == "retenu", "commentaire"]]
+
+# on peut mainteannt générer le nuage de mot
 tfidf_dict = creer_tfidf_dict(corpus)
 
 plt.figure(figsize=(5,5))
@@ -3010,18 +3345,16 @@ sites = dataset.loc[dataset.statut_proximite == "retenu", "Site de comptage"].un
 
 # Si plusieurs sites sont retenus, on peut afficher "Plusieurs sites" ou concaténer
 if len(sites) == 0:
-    titre_site = "Aucun site"
+    titre_site = "Aucun commentaire retenu à proximité du site"
 elif len(sites) == 1:
     titre_site = sites[0]
 else:
     titre_site = "Plusieurs sites"
 
-plt.figure(figsize= (5,5)) 
-plt.imshow(nuage, interpolation='bilinear')
+plt.title(titre_site, fontsize=14, fontweight='bold')
 plt.tight_layout(pad=0)  # supprime toute marge autour du graphique
 plt.margins(0,0)         # pas d’espace autour du contenu
 plt.subplots_adjust(left=0, right=1, top=0.95, bottom=0)
-plt.title(titre_site, fontsize=14, fontweight='bold')
 plt.axis("off")
 plt.show()
 
