@@ -1239,9 +1239,9 @@ En parallèle, les mots "circulation","respecter","croisement","dangereux","prio
 
 ## Conclusion et bilan
 
-Pour conclure sur ce projet, je dois dire qu'il m'a beaucoup intéressé car j'ai pu mettre en pratique les éléments vu en cours de manière concrète, sur un sujet pour lequel j'avais de l'appétence.<br>
-Il faut bien poser le crayon mais j'aurai aimé passé plus de temps à fouiller les données et nous avons identifié de nombreuses perspectives d'évolution de ces données que j'aurai aimé pouvoir continuer à suivre... si elles avaient concernée la métropole de Lyon où je milite pour l'amélioration des aménagements cyclables.<br>
-Mais tout n'est pas perdu et le script d'analyse des données du baromètre est d'ores et déjà en cours de mise en place pour fournir des arguments à notre plaidoyer en vu des élections municipales et métropolitaines du printemps prochain !<br><br>
+Pour conclure sur ce projet, je dois dire qu'il m'a beaucoup intéressé car j'ai pu mettre en pratique les éléments vu en cours de manière concrète, sur un sujet pour lequel j'avais de l'appétence.<br><br>
+Il faut bien poser le crayon mais j'aurai aimé passé plus de temps à fouiller les données et nous avons identifié de nombreuses perspectives d'évolution de ces données que j'aurai aimé pouvoir continuer à suivre... si elles avaient concernée la métropole de Lyon où je milite au sein de l'association *[La Ville à Vélo Lyon Métropole](https://lavilleavelo.org/)* pour l'amélioration des aménagements cyclables.<br>
+Mais tout n'est pas perdu et le script d'analyse des données du baromètre est d'ores et déjà transféré pour fournir des arguments à notre plaidoyer en vu des élections métropolitaines et municipales du printemps prochain (58 coommunes => 1 rapport avec plein d'indicateurs par commune sur lequel nous allons demander à tous les candidats de se positionner). Une super suite au projet, déjà au stade du prototype.<br><br>
 
 ### Perspectives :
 
@@ -1257,14 +1257,14 @@ Mais son traitement pour intégration dans le jeu de donnée nous aurait pris tr
 * plusieurs traces GPS peuvent être superposées sur une même voie lorsque l'aménagement est bidirectionnel ou être unique lorsqu'il est unidirectionnel, le nombre de catégorie d'aménagement listé est bien plus important que celui à proximité des compteurs (du double sens cyclable à la piste bidirectionnelle en passant par la voie verte, la vélorue où la voie partagée avec les bus pour n'en citer que quelques uns.)
 * les aménagements se gèrent comme des dimensions à évolution lente (une fois tous les x mois, un aménagement va être mis à jour pour indiquer par exemple la fin des travaux de création d'une voie de vélopolitain) tandis que notre jeu de donnée à une temporalité courte avec des données horaires.
 
-1. **Identifier l’ordre d’importance des facteurs responsables des variations de flux :** <a id="persp2"></a>
+2. **Identifier l’ordre d’importance des facteurs responsables des variations de flux :** <a id="persp2"></a>
 
 Que ces variations soient horaires (effet de journée de travail), hebdomadaires (semaine de travail vs weekend), saisonnières (effet des vacances d'étét ou des fêtes de fin d'années) ou météorogoliques, nous avons en effet pu voir que de nombreux éléments étaient à l'origine des variations.<br>
 Si nous avions eu le temps d'aborder les cours de machine learning un peu plus tôt.<br>
 Ainsi, nous aurions par exemple pu utiliser un arbre de régression pour ajuster notre calcul de scoring météo, qui est actuellement basé avant tout sur une approche "mon vécu de cycliste" que sur une démarche statistique.<br>
 Nous aurions par ailleurs pu tenter d'identifier l'ordre d'importance de ces facteurs pour affiner l'identification des sites nécessitant des modifications d'aménagements.
 
-1. **Rendre dynamique le rapport en le raccordant directement via API.**<a id="persp3"></a>
+3. **Rendre dynamique le rapport en le raccordant directement via API.**<a id="persp3"></a>
 
 Ceci nous aurait permis d'élargir la période de donnée utilisée plutôt que de se restreindre à 13 mois (donc d'avoir plusieurs étés, plusieurs vacances d'hiver...).<br>
 
@@ -1272,6 +1272,8 @@ Le jeu étant actualisé quotidiennement avec de nombreux compteurs installés d
 
   * pour lesquels un aménagement permettrait d'éviter une future saturation,
   * ou pour lesquels un aménagement favoriserait le développement de la part modale cycliste.
+
+Il faut noter que l'automatisation de la collecte des données nécessiterait la mise en place d'un pipeline de nettoyage des données pour identifier efficacement les valeurs à zéro (interruption du fonctionneemnt du compteur, comme on a pu le voir sur le *24 bd Jourdan*), les valeurs aberrantes à supprimer (comme on a pu observer sur le *147 av d'Italie*) ou les valeurs aberrantes à relisser (typiquement liée à un problème de transmission, comme on a pu l'avoir sur le *quai d'Orsay)*. Sinon, notre tableau de bord pourrait être amené à afficher des données de mauvaises qualité, notamment pour les indicateurs basés sur un maximum (flux max, saturation).
 
 4. **Enrichir le jeu de données avec les jeux de données sur l'accidentologie.**<a id="persp4"></a>
 
@@ -1359,15 +1361,15 @@ trafic_cycliste_paris/
 |    |    |──meteo
 |    |    |    |──Q_75_latest-2024-2025_RR-T-Vent.csv
 |    |    |    └──Q_75_latest-2024-2025_RR-T-Vent.csv.gz
-|    |    |──barometre2025fub               → données du baromètre FUB pour la ville de Paris
+|    |    |──barometre2025fub               → données grand public du baromètre FUB pour la ville de Paris
 |    |    |    |──points-rouges-75056.geojson
 |    |    |    |──points-verts-75056.geojson
 |    |    |    └──stationnements-75056.geojson
-|    |    |──barometre2025fub-dept75        → données du baromètre FUB pour le département Paris
+|    |    |──barometre2025fub-dept75        → données grand public du baromètre FUB pour le département Paris
 |    |    |    |──clusters-rouges-75.geojson
 |    |    |    |──clusters-stationnements-75.geojson
 |    |    |    └──clusters-verts-75.geojson
-|    |    |──barometre2025fub-dept75        → données sociologiques du baromètre FUB 2025
+|    |    |──barometre2025fub-restreint     → données sociologiques du baromètre FUB 2025 (exclu du zip, accès restreint)
 |    |    |──comptage-velo-donnees-compteurs.csv        // jeu de donnée principal
 |    |    |──comptage-velo-donnees-compteurs.geojson    // même jeu, simple différence de format
 |    |    └──comptage-velo-donnees-compteurs.parquet    // même jeu, simple différence de format
@@ -1400,12 +1402,15 @@ trafic_cycliste_paris/
 ├── references      → metadatas de fichier sources et documents d'informations diverses
 |    |── metadatas-donnees-brutes.txt
 |    |── colonnes_meteo.csv                                       //extrait notice en ligne du jeu météo
+|    |── info-75056.json                                //info fichiers .json FUB pour Paris
+|    |── info-75.json                                   //info fichiers .json FUB pour le département 75
+|    |── notice-opendata-gp.pdf                         //notice "grand public" des jeux de données de la FUB
 |    |── metadatas-donnees-meteo-brutes.txt
 |    |── metadatas-donnees-comptage.txt
 |    |── metadatas-donnees-compteur.txt
 |    |── metadatas-donnees-commentaires.txt
 |    └── metadatas-donnees-meteo.txt           
-├── utilitaires     → module python de stockage des scripts python utilisées dans les notebooks notamment
+├── utilitaires     → module python de stockage des scripts python utilisées dans les notebooks notamment (excl)
 ├── .gitignore
 └── README.md
 ```

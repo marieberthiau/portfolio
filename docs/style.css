@@ -197,6 +197,7 @@ pre code {
   white-space: pre-wrap;        /* conserve les sauts de ligne + autorise retour à la ligne  */
   word-break: break-word;      /* autorise la coupure de mots si nécessaire */
   overflow-wrap: anywhere;     /* au besoin, casse les très longs mots (utile pour les URLs) */
+  text-align: left;
 }
 
 /* styling général du préformaté */
