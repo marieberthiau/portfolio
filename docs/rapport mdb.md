@@ -3293,69 +3293,92 @@ def creer_tfidf_dict(corpus):
 
     vectorizer = TfidfVectorizer(
         max_df=max_df_value,             # ignore les mots trop fréquents
-        min_df=min_df_value,    # ignore les mots trop rares... sauf si petit corpus
-        norm='l2',              # normalisation standard
-        tokenizer=lambda x: x.split(),  # on empêche le tokenizer interne
-        preprocessor=lambda x: x,       # on empêche la re-préparation du texte
-        token_pattern=None              # obligatoire si on définit un tokenizer
+        min_df=min_df_value,             # ignore les mots trop rares... sauf si petit corpus
+        norm='l2',                       # normalisation standard
+        tokenizer=lambda x: x.split(),   # on empêche le tokenizer interne
+        preprocessor=lambda x: x,        # on empêche la re-préparation du texte
+        token_pattern=None               # obligatoire si on définit un tokenizer
     )   
     
-    tfidf_matrix = vectorizer.fit_transform(corpus_clean)
-    tfidf_scores = np.asarray(tfidf_matrix.mean(axis=0)).ravel()  # on calcule le score moyen de chaque mot
-    return dict(zip(vectorizer.get_feature_names_out(), tfidf_scores))  # on récupère ce score dans un dictionnaire qui va nous servir pour le nuage
+    try:
+        tfidf_matrix = vectorizer.fit_transform(corpus_clean)
+    except ValueError:
+        return {}   # cas "after pruning no terms remain"
 
-# on va adapter la couleur à chaque catégorie
-    # Compter les occurrences de chaque catégorie
-nb_rouge = dataset.loc[dataset.categorie == "rouge"].shape[0]
-nb_vert = dataset.loc[dataset.categorie == "vert"].shape[0]
-    # Choisir la colormap selon la catégorie prédominante
-colormap_choice = "inferno" if nb_rouge > nb_vert else "viridis"
+    tfidf_scores = np.asarray(tfidf_matrix.mean(axis=0)).ravel()  
+    return dict(zip(vectorizer.get_feature_names_out(), tfidf_scores))
 
-# sélection du corpus de commentaire en ne prenant que les commentaire lemmatisé dans le rayon de proximité défini
+# Gestion des cas où aucun commentaire n’existe et où il faut s'arrêter avant de lancer TFIDFVectorizer
+
+# sélection du corpus de commentaire
 corpus = [supprime_accent(str(t).lower()) for t in dataset.loc[dataset.statut_proximite == "retenu", "commentaire"]]
 
-# on peut mainteannt générer le nuage de mot
-tfidf_dict = creer_tfidf_dict(corpus)
+# Vérifier si le corpus contient du texte
+corpus_valides = [t for t in corpus if isinstance(t, str) and t.strip()]
 
-plt.figure(figsize=(5,5))
-
-if tfidf_dict:  # si le corpus contient des mots valides
-    nuage = WordCloud(
-        background_color="white",
-        max_words=100,
-        stopwords=stop_words,
-        max_font_size=80,
-        random_state=42,
-        colormap=colormap_choice  # mettre inferno viridis sur du positif et inferno sur du négatif, les 2 sont accessibles
-    ).generate_from_frequencies(tfidf_dict)
-    
-    plt.imshow(nuage, interpolation='bilinear')
-else:  # corpus vide → affichage d'un message
-    plt.text(
-        0.5, 0.5,
-        "Corpus de commentaire insuffisant\npour générer un nuage",
-        fontsize=12,
-        ha='center',
-        va='center',
-        wrap=True
-    )    
-
-# Récupérer le site unique correspondant au filtre
+# Récupérer le site unique pour message
 sites = dataset.loc[dataset.statut_proximite == "retenu", "Site de comptage"].unique()
-
-# Si plusieurs sites sont retenus, on peut afficher "Plusieurs sites" ou concaténer
 if len(sites) == 0:
-    titre_site = "Aucun commentaire retenu à proximité du site"
+    titre_site = "Aucun site"
 elif len(sites) == 1:
     titre_site = sites[0]
 else:
     titre_site = "Plusieurs sites"
 
+if len(corpus_valides) == 0:
+    plt.figure(figsize=(5,5))
+    plt.text(
+        0.5, 0.5,
+        f"Aucun commentaire à \nproximité du site :\n{titre_site}",
+        fontsize=12,
+        ha='center',
+        va='center',
+        wrap=True
+    )
+    plt.axis("off")
+    plt.show()
+    raise SystemExit()  # empêche l'appel TF-IDF ensuite
+
+# Génération du nuage
+
+tfidf_dict = creer_tfidf_dict(corpus)
+
+# Si rien après TF-IDF
+if not tfidf_dict:
+    plt.figure(figsize=(5,5))
+    plt.text(
+        0.5, 0.5,
+        f"Pas de commentaire\npour le site :\n{titre_site}",
+        fontsize=12,
+        ha='center',
+        va='center',
+        wrap=True
+    )
+    plt.axis("off")
+    plt.show()
+    raise SystemExit()
+
+
+# on va adapter la couleur à chaque catégorie
+nb_rouge = dataset.loc[dataset.categorie == "rouge"].shape[0]
+nb_vert = dataset.loc[dataset.categorie == "vert"].shape[0]
+colormap_choice = "inferno" if nb_rouge > nb_vert else "viridis"
+
+plt.figure(figsize=(5,5))
+nuage = WordCloud(
+    background_color="white",
+    max_words=100,
+    stopwords=stop_words,
+    max_font_size=80,
+    random_state=42,
+    colormap=colormap_choice
+).generate_from_frequencies(tfidf_dict)
+
+plt.imshow(nuage, interpolation='bilinear')
 plt.title(titre_site, fontsize=14, fontweight='bold')
-plt.tight_layout(pad=0)  # supprime toute marge autour du graphique
-plt.margins(0,0)         # pas d’espace autour du contenu
+plt.tight_layout(pad=0)   # supprime toute marge autour du graphique
+plt.margins(0,0)     # pas d’espace autour du contenu
 plt.subplots_adjust(left=0, right=1, top=0.95, bottom=0)
 plt.axis("off")
 plt.show()
-
-````
+```
